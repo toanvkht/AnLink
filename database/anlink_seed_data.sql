@@ -16,18 +16,18 @@
 -- Community Users (password: User123!)
 INSERT INTO users (email, password_hash, full_name, role, status, location, language_preference)
 VALUES 
-    ('user1@gmail.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5koiyZlHQvYva', 'Nguyễn Văn An', 'community_user', 'active', 'Hanoi, Vietnam', 'vi'),
-    ('user2@gmail.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5koiyZlHQvYva', 'Trần Thị Bình', 'community_user', 'active', 'Ho Chi Minh, Vietnam', 'vi'),
-    ('user3@gmail.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5koiyZlHQvYva', 'Lê Minh Châu', 'community_user', 'active', 'Da Nang, Vietnam', 'vi'),
-    ('user4@yahoo.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5koiyZlHQvYva', 'Phạm Thu Hà', 'community_user', 'active', 'Hanoi, Vietnam', 'vi'),
-    ('user5@outlook.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5koiyZlHQvYva', 'Hoàng Văn Dũng', 'community_user', 'active', 'Can Tho, Vietnam', 'vi')
+    ('user1@gmail.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5koiyZlHQvYva', 'Nguyen Van An', 'community_user', 'active', 'Hanoi, Vietnam', 'vi'),
+    ('user2@gmail.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5koiyZlHQvYva', 'Tran Thi Binh', 'community_user', 'active', 'Ho Chi Minh, Vietnam', 'vi'),
+    ('user3@gmail.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5koiyZlHQvYva', 'Le Minh Chau', 'community_user', 'active', 'Da Nang, Vietnam', 'vi'),
+    ('user4@yahoo.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5koiyZlHQvYva', 'Pham Thu Ha', 'community_user', 'active', 'Hanoi, Vietnam', 'vi'),
+    ('user5@outlook.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5koiyZlHQvYva', 'Hoang Van Dung', 'community_user', 'active', 'Can Tho, Vietnam', 'vi')
 ON CONFLICT (email) DO NOTHING;
 
 -- Moderator (password: Mod123!)
 INSERT INTO users (email, password_hash, full_name, role, status, location, language_preference)
 VALUES 
     ('moderator@anlink.vn', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5koiyZlHQvYva', 'AnLink Moderator', 'moderator', 'active', 'Hanoi, Vietnam', 'vi'),
-    ('mod2@anlink.vn', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5koiyZlHQvYva', 'Đỗ Thị Mai', 'moderator', 'active', 'Ho Chi Minh, Vietnam', 'vi')
+    ('mod2@anlink.vn', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5koiyZlHQvYva', 'Do Thi Mai', 'moderator', 'active', 'Ho Chi Minh, Vietnam', 'vi')
 ON CONFLICT (email) DO NOTHING;
 
 -- ==================================================================

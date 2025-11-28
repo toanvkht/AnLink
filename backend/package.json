@@ -1,0 +1,30 @@
+{
+  "name": "anlink-api",
+  "version": "1.0.0",
+  "description": "AnLink API - Anti-Phishing Detection System Backend",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test-db": "node test-db.js"
+  },
+  "keywords": [
+    "anlink",
+    "anti-phishing",
+    "url-scanner",
+    "security"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}

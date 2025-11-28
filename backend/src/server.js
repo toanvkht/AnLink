@@ -7,6 +7,7 @@ const { pool } = require('./config/database');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
+const scanRoutes = require('./routes/scanRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -22,7 +23,8 @@ app.get('/api/health', (req, res) => {
     status: 'OK', 
     message: 'AnLink backend is running!',
     version: '1.0.0',
-    database: 'connected'
+    database: 'connected',
+    features: ['authentication', 'url-scanning', 'algorithm']
   });
 });
 
@@ -47,6 +49,7 @@ app.get('/api/db-test', async (req, res) => {
 
 // Mount routes
 app.use('/api/auth', authRoutes);
+app.use('/api/scan', scanRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -54,7 +57,15 @@ app.use((req, res) => {
     service: 'AnLink API',
     success: false,
     error: 'Endpoint not found',
-    path: req.path
+    path: req.path,
+    available_endpoints: [
+      'POST /api/auth/register',
+      'POST /api/auth/login',
+      'GET  /api/auth/profile',
+      'POST /api/scan/check',
+      'GET  /api/scan/history',
+      'GET  /api/scan/details/:checkId'
+    ]
   });
 });
 
@@ -71,14 +82,17 @@ app.use((err, req, res, next) => {
 // Start server
 app.listen(PORT, () => {
   console.log('═══════════════════════════════════════');
-  console.log(' AnLink API Server');
+  console.log('🛡️  AnLink API Server');
   console.log('═══════════════════════════════════════');
-  console.log(' Server running on port:', PORT);
-  console.log(' Health check:', `http://localhost:${PORT}/api/health`);
-  console.log(' Auth endpoints:');
+  console.log('📡 Server running on port:', PORT);
+  console.log('🌐 Health check:', `http://localhost:${PORT}/api/health`);
+  console.log('\n🔐 Auth endpoints:');
   console.log('   POST', `http://localhost:${PORT}/api/auth/register`);
   console.log('   POST', `http://localhost:${PORT}/api/auth/login`);
   console.log('   GET ', `http://localhost:${PORT}/api/auth/profile`);
+  console.log('\n🔍 Scan endpoints:');
+  console.log('   POST', `http://localhost:${PORT}/api/scan/check`);
+  console.log('   GET ', `http://localhost:${PORT}/api/scan/history`);
+  console.log('   GET ', `http://localhost:${PORT}/api/scan/details/:checkId`);
   console.log('═══════════════════════════════════════');
 });
-

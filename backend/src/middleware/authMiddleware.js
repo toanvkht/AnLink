@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
-// Verify JWT token
-exports.verifyToken = (req, res, next) => {
+// Verify JWT token (authenticateToken)
+const authenticateToken = (req, res, next) => {
   try {
     // Get token from header
     const authHeader = req.headers.authorization;
@@ -55,4 +55,35 @@ exports.verifyToken = (req, res, next) => {
       error: 'Authentication error'
     });
   }
+};
+
+// Check if user has required role
+const requireRole = (allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({
+        service: 'AnLink API',
+        success: false,
+        error: 'Authentication required'
+      });
+    }
+
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({
+        service: 'AnLink API',
+        success: false,
+        error: 'You do not have permission to access this resource',
+        required_role: allowedRoles,
+        your_role: req.user.role
+      });
+    }
+
+    next();
+  };
+};
+
+module.exports = {
+  authenticateToken,
+  verifyToken: authenticateToken, // Alias for backwards compatibility
+  requireRole
 };

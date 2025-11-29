@@ -27,6 +27,7 @@ cd frontend && npm start     # Port 3000
 - React.js + Node.js + Express
 - PostgreSQL + DynamoDB
 - AWS Cloud
+- Postman API tester
 
 ## 👨‍💻 Author
 

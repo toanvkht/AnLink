@@ -17,7 +17,26 @@ async function analyzeDomain(domain, components) {
       matches: []
     };
 
-    // Check exact match in known phishing URLs
+    // ✅ STEP 1: Check if domain is in legitimate brands FIRST
+    const legitimateCheck = await query(`
+      SELECT domain
+      FROM suspicious_urls
+      WHERE domain = $1 AND status = 'safe'
+      LIMIT 1
+    `, [domain]);
+
+    if (legitimateCheck.rows.length > 0) {
+      // This is a known legitimate domain - mark as safe immediately
+      results.score = 0;
+      results.flags.push('known_legitimate_domain');
+      results.matches.push({
+        type: 'exact_legitimate',
+        domain: legitimateCheck.rows[0].domain
+      });
+      return results;  // ✅ Return early - don't check phishing patterns
+    }
+
+    // ✅ STEP 2: Check exact match in known phishing URLs (only if not legitimate)
     const exactPhishing = await query(`
       SELECT phishing_id, domain_pattern, severity, target_brand
       FROM known_phishing_urls
@@ -38,18 +57,21 @@ async function analyzeDomain(domain, components) {
       return results;
     }
 
-    // Get legitimate brands for comparison
+    // ✅ STEP 3: Get ALL legitimate brands for similarity comparison
     const legitimateBrands = await query(`
       SELECT DISTINCT domain
       FROM suspicious_urls
       WHERE status = 'safe'
-      LIMIT 100
+      ORDER BY domain
     `);
+
+    // Create a Set for quick lookup
+    const legitimateDomainSet = new Set(legitimateBrands.rows.map(b => b.domain));
 
     let maxSimilarity = 0;
     let bestMatch = null;
 
-    // Compare against legitimate brands
+    // ✅ STEP 4: Compare against legitimate brands
     for (const brand of legitimateBrands.rows) {
       const similarity = combinedSimilarity(domain, brand.domain);
       
@@ -63,7 +85,7 @@ async function analyzeDomain(domain, components) {
       }
     }
 
-    // Check pattern matches in known phishing
+    // ✅ STEP 5: Check pattern matches (only if domain is NOT in legitimate set)
     const patternMatches = await query(`
       SELECT phishing_id, domain_pattern, severity, target_brand
       FROM known_phishing_urls
@@ -71,14 +93,23 @@ async function analyzeDomain(domain, components) {
     `);
 
     for (const pattern of patternMatches.rows) {
-      // Simple wildcard pattern matching
+      // Skip if the domain is a known legitimate domain
+      if (legitimateDomainSet.has(domain)) {
+        continue;
+      }
+
+      // Convert wildcard pattern to regex
       const regexPattern = pattern.domain_pattern
         .replace(/\*/g, '.*')
         .replace(/\?/g, '.');
       
       try {
         const regex = new RegExp(`^${regexPattern}$`, 'i');
-        if (regex.test(domain)) {
+        
+        // Only flag as phishing if:
+        // 1. Pattern matches AND
+        // 2. Domain is NOT in the legitimate set
+        if (regex.test(domain) && !legitimateDomainSet.has(domain)) {
           results.flags.push('pattern_match');
           results.matches.push({
             type: 'pattern',
@@ -94,28 +125,29 @@ async function analyzeDomain(domain, components) {
       }
     }
 
-    // Typosquatting detection
-    if (bestMatch && maxSimilarity >= 0.75) {
+    // ✅ STEP 6: Typosquatting detection (high similarity to legitimate but NOT exact)
+    if (bestMatch && maxSimilarity >= 0.75 && maxSimilarity < 1.0) {
+      // High similarity but NOT exact match = likely typosquatting
       results.flags.push('high_similarity_to_legitimate');
       results.matches.push(bestMatch);
       results.score = Math.max(results.score, maxSimilarity);
     }
 
-    // Check for suspicious TLDs
+    // ✅ STEP 7: Check for suspicious TLDs
     const suspiciousTLDs = ['.tk', '.ml', '.ga', '.cf', '.gq', '.xyz', '.top', '.club'];
     if (suspiciousTLDs.some(tld => domain.endsWith(tld))) {
       results.flags.push('suspicious_tld');
       results.score = Math.max(results.score, 0.3);
     }
 
-    // Check for excessive hyphens
+    // ✅ STEP 8: Check for excessive hyphens
     const hyphenCount = (domain.match(/-/g) || []).length;
     if (hyphenCount >= 3) {
       results.flags.push('excessive_hyphens');
       results.score = Math.max(results.score, 0.2);
     }
 
-    // Check for numbers in domain
+    // ✅ STEP 9: Check for numbers in domain
     if (/\d{2,}/.test(domain)) {
       results.flags.push('contains_multiple_digits');
       results.score = Math.max(results.score, 0.15);

@@ -159,7 +159,8 @@ res.json({
     result: {
       score: aggregated.final_score,
       classification: aggregated.classification,
-      action: aggregated.action,  // ❌ This doesn't exist anymore
+      recommendation: aggregated.recommendation,  
+      action: displayInfo.action,  
       confidence: aggregated.confidence,
       ...displayInfo
     },

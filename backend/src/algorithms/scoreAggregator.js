@@ -6,11 +6,11 @@
 function aggregateScore(analysisResults) {
   // Default weights (can be adjusted based on testing)
   const weights = {
-    domain: 0.40,      // 40% - Most critical
-    subdomain: 0.25,   // 25% - Common attack vector
-    path: 0.15,        // 15% - Moderately important
-    query: 0.10,       // 10% - Less common
-    heuristics: 0.10   // 10% - Additional checks
+    domain: 0.40,      
+    subdomain: 0.25,   
+    path: 0.15,        
+    query: 0.10,       
+    heuristics: 0.10   
   };
 
   // Calculate weighted score
@@ -39,15 +39,15 @@ function aggregateScore(analysisResults) {
 
   if (finalScore < 0.30) {
     classification = 'safe';
-    recommendation = 'safe';  // ✅ Changed from 'allow'
+    recommendation = 'safe';  // 
     confidence = 'high';
   } else if (finalScore >= 0.30 && finalScore < 0.60) {
     classification = 'suspicious';
-    recommendation = 'suspicious';  // ✅ Changed from 'warn'
+    recommendation = 'suspicious';  //
     confidence = 'medium';
   } else {
     classification = 'dangerous';
-    recommendation = 'block';  // ✅ This one is correct
+    recommendation = 'block';  // 
     confidence = 'high';
   }
 
@@ -86,7 +86,7 @@ function getClassificationDisplay(classification) {
     },
     suspicious: {
       classification: 'suspicious',
-      action: 'warn',  // ✅ This is for UI display only
+      action: 'warn', 
       message: 'Some phishing indicators detected. Proceed with caution.',
       color: 'orange',
       icon: '⚠',
@@ -94,7 +94,7 @@ function getClassificationDisplay(classification) {
     },
     dangerous: {
       classification: 'dangerous',
-      action: 'block',  // ✅ This is for UI display only
+      action: 'block',  
       message: 'Strong phishing indicators detected. Access blocked for your safety.',
       color: 'red',
       icon: '✗',

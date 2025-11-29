@@ -1,21 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { scanAPI, reportsAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 const ReportPhishingPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { user, isAuthenticated } = useAuth();
   const initialUrl = searchParams.get('url') || '';
-  const initialClassification = searchParams.get('classification') || '';
+  const initialReason = searchParams.get('reason') || '';
 
   const [formData, setFormData] = useState({
     url: initialUrl,
-    report_reason: '',
+    report_reason: initialReason,
     incident_description: '',
     evidence_urls: [''],
+    reporter_email: '', // For anonymous reporters
   });
 
   const [preScanResult, setPreScanResult] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
   const [scanLoading, setScanLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [error, setError] = useState('');
@@ -34,8 +38,9 @@ const ReportPhishingPage = () => {
     
     setScanLoading(true);
     setError('');
+    setShowDetails(false);
     try {
-      const response = await scanAPI.quickCheck({ url: formData.url });
+      const response = await scanAPI.checkUrl({ url: formData.url });
       setPreScanResult(response.data.data);
     } catch (err) {
       setError('Failed to pre-scan URL. You can still submit the report.');
@@ -100,17 +105,33 @@ const ReportPhishingPage = () => {
         url: formData.url,
         report_reason: formData.report_reason,
         incident_description: formData.incident_description,
-        evidence_urls: evidenceUrls.length > 0 ? evidenceUrls : undefined
+        evidence_urls: evidenceUrls.length > 0 ? evidenceUrls : undefined,
+        // Include email for anonymous reporters
+        ...((!isAuthenticated && formData.reporter_email) && { reporter_email: formData.reporter_email })
       };
 
       const response = await reportsAPI.submitReport(reportData);
       
-      setSuccess('Report submitted successfully! Thank you for helping keep the internet safe.');
+      setSuccess(response.data.message || 'Report submitted successfully! Thank you for helping keep the internet safe.');
       
-      // Redirect after 2 seconds
-      setTimeout(() => {
-        navigate('/reports');
-      }, 2000);
+      // Only redirect to /reports for authenticated users
+      if (isAuthenticated) {
+        setTimeout(() => {
+          navigate('/reports');
+        }, 2000);
+      }
+      
+      // Reset form for anonymous users
+      if (!isAuthenticated) {
+        setFormData({
+          url: '',
+          report_reason: '',
+          incident_description: '',
+          evidence_urls: [''],
+          reporter_email: ''
+        });
+        setPreScanResult(null);
+      }
     } catch (err) {
       if (err.response?.status === 409) {
         setError('You have already reported this URL.');
@@ -135,6 +156,18 @@ const ReportPhishingPage = () => {
     }
   };
 
+  const getScoreColor = (score) => {
+    if (score < 0.3) return 'text-emerald-400';
+    if (score < 0.6) return 'text-amber-400';
+    return 'text-red-400';
+  };
+
+  const getProgressColor = (score) => {
+    if (score < 0.3) return 'bg-emerald-500';
+    if (score < 0.6) return 'bg-amber-500';
+    return 'bg-red-500';
+  };
+
   const reportReasons = [
     { value: 'phishing', label: 'Phishing - Fake login/credential stealing' },
     { value: 'scam', label: 'Scam - Fraudulent offers or schemes' },
@@ -143,6 +176,193 @@ const ReportPhishingPage = () => {
     { value: 'spam', label: 'Spam - Unsolicited advertising' },
     { value: 'other', label: 'Other suspicious activity' },
   ];
+
+  // Detailed Scan Results Component
+  const ScanDetailsSection = ({ result }) => {
+    if (!result) return null;
+
+    // Extract data from result - handle both direct properties and nested structures
+    const urlInfo = result.url_info || {};
+    const algorithm = result.algorithm || {};
+    const componentDetails = algorithm.details || {};
+    const breakdown = algorithm.breakdown || {};
+    
+    // Also check for algorithm.components as fallback for scores
+    const componentScores = algorithm.components || {};
+
+    // If no details but we have component scores, build details from scores
+    const hasDetails = Object.keys(componentDetails).length > 0;
+    const hasScores = Object.keys(componentScores).length > 0;
+    const hasBreakdown = Object.keys(breakdown).length > 0;
+
+    return (
+      <div className="mt-4 space-y-4">
+        {/* Domain & URL Information */}
+        <div>
+          <h4 className="text-white font-semibold mb-3 flex items-center text-sm">
+            <span className="mr-2">🌐</span>
+            Domain & URL Information
+          </h4>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+            <div className="bg-black/20 rounded-lg p-2">
+              <div className="text-blue-200/60 text-xs mb-1">Domain</div>
+              <div className="text-white font-mono text-xs truncate">{urlInfo.domain || result.domain || 'N/A'}</div>
+            </div>
+            <div className="bg-black/20 rounded-lg p-2">
+              <div className="text-blue-200/60 text-xs mb-1">Subdomain</div>
+              <div className="text-white font-mono text-xs truncate">{urlInfo.subdomain || 'None'}</div>
+            </div>
+            <div className="bg-black/20 rounded-lg p-2">
+              <div className="text-blue-200/60 text-xs mb-1">Scheme</div>
+              <div className={`font-mono text-xs ${(urlInfo.scheme || '').includes('https') ? 'text-emerald-400' : 'text-amber-400'}`}>
+                {urlInfo.scheme || 'N/A'}
+              </div>
+            </div>
+            {urlInfo.tld && (
+              <div className="bg-black/20 rounded-lg p-2">
+                <div className="text-blue-200/60 text-xs mb-1">TLD</div>
+                <div className="text-white font-mono text-xs">{urlInfo.tld}</div>
+              </div>
+            )}
+            {urlInfo.is_ip && (
+              <div className="bg-red-500/20 rounded-lg p-2 border border-red-500/30">
+                <div className="text-red-300 text-xs mb-1">⚠️ IP Address Detected</div>
+                <div className="text-red-400 font-mono text-xs">{urlInfo.domain}</div>
+              </div>
+            )}
+            {(result.is_shortener || urlInfo.is_shortener) && (
+              <div className="bg-amber-500/20 rounded-lg p-2 border border-amber-500/30">
+                <div className="text-amber-300 text-xs mb-1">🔗 URL Shortener</div>
+                <div className="text-amber-400 font-mono text-xs">{result.shortener || 'Detected'}</div>
+              </div>
+            )}
+            {urlInfo.url_length && (
+              <div className="bg-black/20 rounded-lg p-2">
+                <div className="text-blue-200/60 text-xs mb-1">URL Length</div>
+                <div className="text-white font-mono text-xs">{urlInfo.url_length} chars</div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Component Scores - show if we have details or scores */}
+        {(hasDetails || hasScores) && (
+          <div>
+            <h4 className="text-white font-semibold mb-3 flex items-center text-sm">
+              <span className="mr-2">📊</span>
+              Component Analysis
+            </h4>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+              {hasDetails ? (
+                // Use full details if available
+                Object.entries(componentDetails).map(([key, data]) => {
+                  const score = data?.score || 0;
+                  return (
+                    <div key={key} className="bg-black/20 rounded-lg p-2">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-blue-200/70 text-xs capitalize">{key}</span>
+                        <span className={`text-xs font-bold ${getScoreColor(score)}`}>
+                          {(score * 100).toFixed(0)}%
+                        </span>
+                      </div>
+                      <div className="w-full bg-white/10 rounded-full h-1">
+                        <div
+                          className={`h-1 rounded-full transition-all ${getProgressColor(score)}`}
+                          style={{ width: `${Math.max(score * 100, 3)}%` }}
+                        />
+                      </div>
+                      {data?.flags && data.flags.length > 0 && (
+                        <div className="mt-1 text-xs text-blue-200/50">{data.flags.length} flags</div>
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                // Fallback to component scores
+                Object.entries(componentScores).map(([key, score]) => (
+                  <div key={key} className="bg-black/20 rounded-lg p-2">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-blue-200/70 text-xs capitalize">{key}</span>
+                      <span className={`text-xs font-bold ${getScoreColor(score)}`}>
+                        {(score * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-white/10 rounded-full h-1">
+                      <div
+                        className={`h-1 rounded-full transition-all ${getProgressColor(score)}`}
+                        style={{ width: `${Math.max(score * 100, 3)}%` }}
+                      />
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Detected Flags */}
+        {hasDetails && Object.values(componentDetails).some(d => d?.flags?.length > 0) && (
+          <div>
+            <h4 className="text-white font-semibold mb-3 flex items-center text-sm">
+              <span className="mr-2">🚩</span>
+              Detected Patterns
+            </h4>
+            <div className="flex flex-wrap gap-1">
+              {Object.entries(componentDetails).flatMap(([comp, data]) => 
+                (data?.flags || []).slice(0, 10).map((flag, idx) => (
+                  <span
+                    key={`${comp}-${idx}`}
+                    className={`text-xs px-2 py-1 rounded ${
+                      (data?.score || 0) >= 0.5 
+                        ? 'bg-red-500/20 text-red-300' 
+                        : (data?.score || 0) >= 0.3 
+                          ? 'bg-amber-500/20 text-amber-300'
+                          : 'bg-white/10 text-blue-200/70'
+                    }`}
+                  >
+                    {flag.replace(/_/g, ' ')}
+                  </span>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Score Breakdown */}
+        {hasBreakdown && (
+          <div>
+            <h4 className="text-white font-semibold mb-2 flex items-center text-sm">
+              <span className="mr-2">🧮</span>
+              Score Calculation
+            </h4>
+            <div className="bg-black/20 rounded-lg p-3">
+              <div className="space-y-1">
+                {Object.entries(breakdown).map(([comp, data]) => (
+                  <div key={comp} className="flex items-center justify-between text-xs">
+                    <span className="capitalize text-blue-200/70">{comp}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-200/50">
+                        {((data.raw_score || 0) * 100).toFixed(0)}% × {((data.weight || 0) * 100).toFixed(0)}%
+                      </span>
+                      <span className="text-white font-medium w-12 text-right">
+                        = {((data.weighted_score || 0) * 100).toFixed(1)}%
+                      </span>
+                    </div>
+                  </div>
+                ))}
+                <div className="border-t border-white/10 pt-1 mt-1 flex justify-between font-bold text-xs">
+                  <span className="text-white">Total Risk Score</span>
+                  <span className={getScoreColor(result.score || 0)}>
+                    {((result.score || 0) * 100).toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 py-12">
@@ -180,6 +400,24 @@ const ReportPhishingPage = () => {
               <span className="mr-2">❌</span>
               {error}
             </p>
+          </div>
+        )}
+
+        {/* Anonymous User Notice */}
+        {!isAuthenticated && (
+          <div className="bg-blue-500/20 border border-blue-400/50 rounded-2xl p-4 mb-6">
+            <div className="flex items-start">
+              <span className="text-2xl mr-3">👤</span>
+              <div>
+                <h3 className="text-blue-200 font-semibold mb-1">Reporting Anonymously</h3>
+                <p className="text-blue-200/70 text-sm">
+                  You're submitting an anonymous report. 
+                  <Link to="/login" className="text-cyan-400 hover:text-cyan-300 ml-1">
+                    Log in
+                  </Link> to track your reports and get updates.
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
@@ -234,11 +472,27 @@ const ReportPhishingPage = () => {
                       {preScanResult.classification}
                     </span>
                   </div>
-                  <span className={`font-bold ${getResultStyles(preScanResult.classification).text}`}>
-                    {(preScanResult.score * 100).toFixed(0)}% Risk
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className={`font-bold ${getResultStyles(preScanResult.classification).text}`}>
+                      {(preScanResult.score * 100).toFixed(0)}% Risk
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowDetails(!showDetails)}
+                      className="text-xs px-3 py-1 bg-black/20 rounded-lg text-blue-200 hover:bg-black/30 transition-all"
+                    >
+                      {showDetails ? '▲ Hide Details' : '▼ Show Details'}
+                    </button>
+                  </div>
                 </div>
                 <p className="text-blue-200/70 text-sm">{preScanResult.message}</p>
+                
+                {preScanResult.explanation && (
+                  <p className="text-blue-200/50 text-xs mt-2 italic">{preScanResult.explanation}</p>
+                )}
+
+                {/* Expandable Details */}
+                {showDetails && <ScanDetailsSection result={preScanResult} />}
               </div>
             )}
           </div>
@@ -286,6 +540,27 @@ const ReportPhishingPage = () => {
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-blue-200/50 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all resize-none"
               />
             </div>
+
+            {/* Email for Anonymous Users */}
+            {!isAuthenticated && (
+              <div className="mb-4">
+                <label className="block text-blue-100 font-medium mb-2">
+                  Your Email
+                  <span className="text-blue-200/50 ml-2">(Optional - for follow-up)</span>
+                </label>
+                <input
+                  type="email"
+                  name="reporter_email"
+                  value={formData.reporter_email}
+                  onChange={handleChange}
+                  placeholder="your@email.com"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-blue-200/50 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all"
+                />
+                <p className="text-blue-200/50 text-xs mt-1">
+                  We'll only use this to notify you about the report status
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Evidence URLs */}

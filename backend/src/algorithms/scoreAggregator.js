@@ -64,15 +64,44 @@ function aggregateScore(analysisResults, customWeights = null) {
     }
   }
 
+  // Check for definitely dangerous patterns BEFORE classification
+  const dangerCheck = isDefinitelyDangerous(analysisResults);
+  
+  if (dangerCheck.dangerous) {
+    // Override to dangerous classification with high score
+    finalScore = Math.max(finalScore, 0.75);
+    
+    // Add the override reason to breakdown
+    breakdown.override = {
+      reason: dangerCheck.reason,
+      original_score: parseFloat(finalScore.toFixed(4)),
+      applied: true
+    };
+  }
+
   // Ensure final score is within bounds
   finalScore = Math.max(0, Math.min(1, finalScore));
   finalScore = parseFloat(finalScore.toFixed(4));
 
-  // Classify based on thresholds
-  const classification = classifyScore(finalScore);
+  // Classify based on thresholds (or use override)
+  let classification;
+  if (dangerCheck.dangerous) {
+    classification = {
+      classification: 'dangerous',
+      recommendation: 'block',
+      confidence: 'high'
+    };
+  } else {
+    classification = classifyScore(finalScore);
+  }
 
   // Build summary
   const summary = buildSummary(breakdown, finalScore, classification);
+  
+  // Add override info to summary if applicable
+  if (dangerCheck.dangerous) {
+    summary.override_reason = dangerCheck.reason;
+  }
 
   return {
     final_score: finalScore,
@@ -248,31 +277,60 @@ function generateExplanation(aggregatedResult) {
 /**
  * Quick check if URL is definitely dangerous
  * @param {object} analysisResults - Results from analyzers
- * @returns {boolean} - True if definitely dangerous
+ * @returns {object} - { dangerous: boolean, reason: string }
  */
 function isDefinitelyDangerous(analysisResults) {
-  // Check for immediate red flags
   const domainResult = analysisResults.domain || {};
   const heuristicsResult = analysisResults.heuristics || {};
+  const domainFlags = domainResult.flags || [];
+  const heuristicFlags = heuristicsResult.flags || [];
 
-  // Known phishing match
-  if (domainResult.flags && domainResult.flags.includes('exact_phishing_match')) {
-    return true;
+  // 1. Known phishing match
+  if (domainFlags.includes('exact_phishing_match')) {
+    return { dangerous: true, reason: 'known_phishing_url' };
   }
 
-  // Data URI (potentially dangerous)
-  if (heuristicsResult.flags && heuristicsResult.flags.includes('dangerous_data_uri')) {
-    return true;
+  // 2. Data URI (potentially dangerous)
+  if (heuristicFlags.includes('dangerous_data_uri')) {
+    return { dangerous: true, reason: 'dangerous_data_uri' };
   }
 
-  // IP address with financial keywords
-  if (heuristicsResult.flags && 
-      heuristicsResult.flags.includes('ip_address_used') &&
-      heuristicsResult.flags.includes('http_on_financial_domain')) {
-    return true;
+  // 3. IP address with financial keywords
+  if (heuristicFlags.includes('ip_address_used') &&
+      heuristicFlags.includes('http_on_financial_domain')) {
+    return { dangerous: true, reason: 'ip_with_financial_keywords' };
   }
 
-  return false;
+  // 4. Brand name with phishing keywords on suspicious TLD
+  const hasBrandWithKeywords = domainFlags.includes('brand_with_phishing_keywords') || 
+                                domainFlags.includes('brand_with_multiple_phishing_keywords');
+  const hasSuspiciousTLD = domainFlags.includes('free_tld_high_risk') || 
+                           domainFlags.includes('suspicious_tld');
+  
+  if (hasBrandWithKeywords && hasSuspiciousTLD) {
+    return { dangerous: true, reason: 'brand_impersonation_on_suspicious_tld' };
+  }
+
+  // 5. Brand name + HTTP + suspicious TLD (classic phishing combo)
+  const hasBrandInDomain = domainFlags.some(f => f.includes('brand_'));
+  const hasHTTPFlag = heuristicFlags.includes('http_on_sensitive_domain') || 
+                      heuristicFlags.includes('http_on_financial_domain');
+  
+  if (hasBrandInDomain && hasHTTPFlag && hasSuspiciousTLD) {
+    return { dangerous: true, reason: 'brand_http_suspicious_tld_combo' };
+  }
+
+  // 6. High domain score (>= 0.65) + high heuristics score (>= 0.5)
+  if ((domainResult.score || 0) >= 0.65 && (heuristicsResult.score || 0) >= 0.5) {
+    return { dangerous: true, reason: 'multiple_high_risk_components' };
+  }
+
+  // 7. Very high individual component score
+  if ((domainResult.score || 0) >= 0.85) {
+    return { dangerous: true, reason: 'extreme_domain_risk' };
+  }
+
+  return { dangerous: false, reason: null };
 }
 
 module.exports = {

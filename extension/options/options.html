@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AnLink Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="options-container">
+    <header class="header">
+      <div class="logo">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L4 5V11C4 16.55 7.16 21.74 12 23C16.84 21.74 20 16.55 20 11V5L12 2Z" fill="url(#grad)"/>
+          <path d="M10 12L12 14L16 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <defs>
+            <linearGradient id="grad" x1="4" y1="2" x2="20" y2="23">
+              <stop stop-color="#3B82F6"/>
+              <stop offset="1" stop-color="#06B6D4"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="logo-text">AnLink Settings</span>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- Protection Settings -->
+      <section class="settings-section">
+        <h2 class="section-title">Protection Settings</h2>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label" for="autoScan">Automatic Scanning</label>
+            <p class="setting-desc">Automatically scan websites when you visit them</p>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="autoScan" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label" for="blockDangerous">Block Dangerous Sites</label>
+            <p class="setting-desc">Show full-page warning on dangerous websites</p>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="blockDangerous" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label" for="warnSuspicious">Warn on Suspicious Sites</label>
+            <p class="setting-desc">Show notifications for suspicious websites</p>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="warnSuspicious" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Notification Settings -->
+      <section class="settings-section">
+        <h2 class="section-title">Notifications</h2>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label" for="notifications">Enable Notifications</label>
+            <p class="setting-desc">Show desktop notifications for threats</p>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="notifications" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label" for="soundAlerts">Sound Alerts</label>
+            <p class="setting-desc">Play sound when dangerous site is detected</p>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="soundAlerts">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Statistics -->
+      <section class="settings-section">
+        <h2 class="section-title">Statistics</h2>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-value" id="totalScans">0</span>
+            <span class="stat-label">Total Scans</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="threatsBlocked">0</span>
+            <span class="stat-label">Threats Blocked</span>
+          </div>
+        </div>
+
+        <button class="btn btn-secondary" id="resetStats">Reset Statistics</button>
+      </section>
+
+      <!-- Actions -->
+      <section class="actions-section">
+        <button class="btn btn-primary" id="saveBtn">Save Settings</button>
+        <button class="btn btn-secondary" id="resetBtn">Reset to Defaults</button>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>AnLink v1.0.0 | <a href="http://localhost:3000" target="_blank">Open Dashboard</a></p>
+    </footer>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

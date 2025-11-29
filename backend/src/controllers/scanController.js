@@ -393,6 +393,32 @@ exports.scanURL = async (req, res) => {
     // ============================================
     const responseTimeMs = Date.now() - startTime;
 
+    // Build url_info object for frontend display
+    const urlInfo = {
+      domain: components.domain,
+      subdomain: components.subdomain || null,
+      path: components.path || '/',
+      query: components.query || null,
+      scheme: components.scheme || 'https',
+      tld: components.tld || (components.domain ? components.domain.split('.').pop() : null),
+      is_ip: components.is_ip || false,
+      is_shortener: components.is_shortener || false,
+      url_length: trimmedUrl.length,
+    };
+
+    // Build breakdown with proper structure for frontend
+    const breakdownForFrontend = {};
+    const weights = { domain: 0.40, subdomain: 0.25, path: 0.15, query: 0.10, heuristics: 0.10 };
+    Object.entries(analysisResults).forEach(([comp, data]) => {
+      if (weights[comp]) {
+        breakdownForFrontend[comp] = {
+          raw_score: data.score || 0,
+          weight: weights[comp],
+          weighted_score: (data.score || 0) * weights[comp]
+        };
+      }
+    });
+
     res.json({
       success: true,
       data: {
@@ -409,6 +435,10 @@ exports.scanURL = async (req, res) => {
         message: displayInfo.emoji + ' ' + displayInfo.message,
         explanation: explanation,
         
+        // URL information for frontend display
+        url_info: urlInfo,
+        domain: components.domain,
+        
         // Display information
         display: {
           color: displayInfo.color,
@@ -424,7 +454,7 @@ exports.scanURL = async (req, res) => {
         algorithm: {
           score: aggregatedResult.final_score,
           result: aggregatedResult.classification,
-          breakdown: aggregatedResult.breakdown,
+          breakdown: breakdownForFrontend,
           summary: aggregatedResult.summary,
           components: {
             domain: analysisResults.domain.score,
@@ -565,9 +595,62 @@ exports.getScanDetails = async (req, res) => {
 
     const check = checkResult.rows[0];
     
+    // Build url_info object
+    const urlInfo = {
+      domain: check.domain,
+      subdomain: check.subdomain || null,
+      path: check.path,
+      query: check.query_params,
+      scheme: check.scheme || 'https',
+      tld: check.domain ? check.domain.split('.').pop() : null,
+      is_ip: check.domain ? /^(\d{1,3}\.){3}\d{1,3}$/.test(check.domain) : false,
+    };
+
+    // Build algorithm details from components
+    const componentDetails = {};
+    const breakdown = {};
+    const weights = { domain: 0.40, subdomain: 0.25, path: 0.15, query: 0.10, heuristics: 0.10 };
+
+    componentsResult.rows.forEach(comp => {
+      const compType = comp.component_type;
+      const details = typeof comp.details === 'string' ? JSON.parse(comp.details) : (comp.details || {});
+      const flags = typeof comp.heuristic_flags === 'string' ? JSON.parse(comp.heuristic_flags) : (comp.heuristic_flags || []);
+      
+      // Note: database column is similarity_score, not score
+      const score = comp.similarity_score || 0;
+      
+      componentDetails[compType] = {
+        score: score,
+        flags: flags,
+        ...details
+      };
+
+      if (weights[compType]) {
+        breakdown[compType] = {
+          raw_score: score,
+          weight: weights[compType],
+          weighted_score: score * weights[compType]
+        };
+      }
+    });
+    
     res.json({
       success: true,
       data: {
+        check_id: check.check_id,
+        url: check.original_url,
+        normalized_url: check.normalized_url,
+        score: check.algorithm_score,
+        classification: check.algorithm_result,
+        checked_at: check.checked_at,
+        response_time_ms: check.response_time_ms,
+        url_info: urlInfo,
+        algorithm: {
+          details: componentDetails,
+          breakdown: breakdown,
+        },
+        display: getClassificationDisplay(check.algorithm_result),
+        // Legacy format for backward compatibility
         check: {
           ...check,
           display: getClassificationDisplay(check.algorithm_result)

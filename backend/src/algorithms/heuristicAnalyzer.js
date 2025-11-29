@@ -239,7 +239,7 @@ function analyzeHeuristics(components) {
   }
 
   // ============================================
-  // CHECK 4: HTTP instead of HTTPS for financial domains
+  // CHECK 4: HTTP instead of HTTPS for financial/sensitive domains
   // ============================================
   if (components.scheme === 'http') {
     const hasFinancialKeyword = FINANCIAL_KEYWORDS.some(keyword => 
@@ -248,12 +248,21 @@ function analyzeHeuristics(components) {
       (components.path && components.path.includes(keyword))
     );
     
+    const hasPhishingKeyword = PHISHING_KEYWORDS.some(keyword =>
+      domain.includes(keyword) ||
+      (components.subdomain && components.subdomain.includes(keyword)) ||
+      (components.path && components.path.includes(keyword))
+    );
+    
     if (hasFinancialKeyword) {
       results.flags.push('http_on_financial_domain');
-      results.score += 0.40;
+      results.score += 0.50;
+    } else if (hasPhishingKeyword) {
+      results.flags.push('http_on_sensitive_domain');
+      results.score += 0.35;
     } else {
       results.flags.push('http_protocol_used');
-      results.score += 0.15;
+      results.score += 0.20;
     }
   }
 
@@ -271,10 +280,19 @@ function analyzeHeuristics(components) {
   // ============================================
   // CHECK 6: Suspicious TLD
   // ============================================
-  if (SUSPICIOUS_TLDS.some(tld => domain.endsWith(tld))) {
+  const matchedTLD = SUSPICIOUS_TLDS.find(tld => domain.endsWith(tld));
+  if (matchedTLD) {
     results.flags.push('suspicious_tld');
-    results.score += 0.30;
-    results.details.tld = domain.split('.').pop();
+    results.details.tld = matchedTLD;
+    
+    // Free TLDs are extremely high risk
+    const freeTLDs = ['.tk', '.ml', '.ga', '.cf', '.gq'];
+    if (freeTLDs.includes(matchedTLD)) {
+      results.score += 0.45;
+      results.flags.push('free_tld_abuse');
+    } else {
+      results.score += 0.30;
+    }
   }
 
   // ============================================
@@ -368,6 +386,26 @@ function analyzeHeuristics(components) {
     results.flags.push('unicode_characters_detected');
     results.score += 0.20;
     results.details.unicode_chars = nonASCII.length;
+  }
+
+  // ============================================
+  // CHECK 16: Combination of suspicious factors (multiplier)
+  // ============================================
+  // If we have multiple suspicious indicators, increase score
+  const suspiciousIndicators = results.flags.filter(flag => 
+    flag.includes('suspicious') || 
+    flag.includes('phishing') || 
+    flag.includes('http_') ||
+    flag.includes('free_tld') ||
+    flag.includes('double_extension') ||
+    flag.includes('base64')
+  ).length;
+  
+  if (suspiciousIndicators >= 3) {
+    results.flags.push('multiple_risk_factors');
+    results.score *= 1.3; // 30% boost for having 3+ indicators
+  } else if (suspiciousIndicators >= 2) {
+    results.score *= 1.15; // 15% boost for 2 indicators
   }
 
   // ============================================

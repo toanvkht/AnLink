@@ -293,7 +293,7 @@ const DashboardPage = () => {
                   <div key={report.report_id} className="bg-white/5 backdrop-blur-lg rounded-xl p-4 border border-white/10">
                     <div className="flex items-center justify-between">
                       <div className="flex-1 min-w-0 mr-4">
-                        <p className="text-white text-sm font-mono truncate">{report.original_url}</p>
+                        <p className="text-white text-sm font-mono truncate max-w-xs">{report.original_url}</p>
                         <p className="text-blue-200/50 text-xs mt-1">
                           {new Date(report.reported_at).toLocaleDateString()}
                         </p>

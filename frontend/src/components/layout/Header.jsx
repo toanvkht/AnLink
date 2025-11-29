@@ -49,6 +49,20 @@ const Header = () => {
                   History
                 </Link>
                 <Link 
+                  to="/reports" 
+                  className="px-4 py-2 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 transition-all"
+                >
+                  Reports
+                </Link>
+                {(user?.role === 'moderator' || user?.role === 'admin') && (
+                  <Link 
+                    to="/moderator/queue" 
+                    className="px-4 py-2 rounded-lg text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 transition-all"
+                  >
+                    Mod Queue
+                  </Link>
+                )}
+                <Link 
                   to="/dashboard" 
                   className="px-4 py-2 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 transition-all"
                 >
@@ -145,6 +159,22 @@ const Header = () => {
                   >
                     History
                   </Link>
+                  <Link 
+                    to="/reports" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="px-4 py-3 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 transition-all"
+                  >
+                    My Reports
+                  </Link>
+                  {(user?.role === 'moderator' || user?.role === 'admin') && (
+                    <Link 
+                      to="/moderator/queue" 
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="px-4 py-3 rounded-lg text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 transition-all"
+                    >
+                      Mod Queue
+                    </Link>
+                  )}
                   <Link 
                     to="/dashboard" 
                     onClick={() => setMobileMenuOpen(false)}

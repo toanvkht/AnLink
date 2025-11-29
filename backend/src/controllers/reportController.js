@@ -2,12 +2,14 @@ const { query } = require('../config/database');
 const { parseURL, isValidURL } = require('../algorithms/urlParser');
 
 /**
- * Submit a new phishing report
+ * Submit a new phishing report (supports anonymous reports)
  */
 exports.submitReport = async (req, res) => {
   try {
-    const { url, report_reason, incident_description, evidence_urls } = req.body;
-    const userId = req.user.userId;
+    const { url, report_reason, incident_description, evidence_urls, reporter_email } = req.body;
+    // User can be null for anonymous reports
+    const userId = req.user?.userId || null;
+    const isAnonymous = !userId;
 
     // Validation
     if (!url || !report_reason) {
@@ -58,61 +60,81 @@ exports.submitReport = async (req, res) => {
       urlId = insertResult.rows[0].url_id;
     }
 
-    // Check for duplicate reports from same user
-    const duplicateCheck = await query(`
-      SELECT report_id FROM reports 
-      WHERE url_id = $1 AND reported_by = $2 AND status NOT IN ('rejected', 'duplicate')
-    `, [urlId, userId]);
+    // Check for duplicate reports from same user (only if authenticated)
+    if (userId) {
+      const duplicateCheck = await query(`
+        SELECT report_id FROM reports 
+        WHERE url_id = $1 AND reported_by = $2 AND status NOT IN ('rejected', 'duplicate')
+      `, [urlId, userId]);
 
-    if (duplicateCheck.rows.length > 0) {
-      return res.status(409).json({
-        service: 'AnLink API',
-        success: false,
-        error: 'You have already reported this URL',
-        existing_report_id: duplicateCheck.rows[0].report_id
-      });
+      if (duplicateCheck.rows.length > 0) {
+        return res.status(409).json({
+          service: 'AnLink API',
+          success: false,
+          error: 'You have already reported this URL',
+          existing_report_id: duplicateCheck.rows[0].report_id
+        });
+      }
     }
 
-    // Insert report
+    // Insert report (reported_by can be NULL for anonymous)
     const reportResult = await query(`
       INSERT INTO reports 
-      (url_id, reported_by, report_reason, incident_description, evidence_urls, status, priority)
-      VALUES ($1, $2, $3, $4, $5, 'pending', 'medium')
+      (url_id, reported_by, report_reason, incident_description, evidence_urls, status, priority, reporter_email)
+      VALUES ($1, $2, $3, $4, $5, 'pending', $6, $7)
       RETURNING report_id, reported_at
     `, [
       urlId,
-      userId,
+      userId, // NULL for anonymous
       report_reason,
       incident_description || null,
-      evidence_urls ? JSON.stringify(evidence_urls) : null
+      evidence_urls ? JSON.stringify(evidence_urls) : null,
+      isAnonymous ? 'low' : 'medium', // Anonymous reports start with lower priority
+      isAnonymous ? (reporter_email || null) : null // Optional email for anonymous reporters
     ]);
 
     const reportId = reportResult.rows[0].report_id;
 
-    // Log activity
-    await query(`
-      INSERT INTO user_activity_logs (user_id, action_type, action_details)
-      VALUES ($1, 'report', $2)
-    `, [userId, JSON.stringify({ report_id: reportId, url: components.original_url })]);
+    // Log activity (only if authenticated)
+    if (userId) {
+      await query(`
+        INSERT INTO user_activity_logs (user_id, action_type, action_details)
+        VALUES ($1, 'report', $2)
+      `, [userId, JSON.stringify({ report_id: reportId, url: components.original_url })]);
+    }
 
     res.status(201).json({
       service: 'AnLink API',
       success: true,
-      message: 'Report submitted successfully',
+      message: isAnonymous 
+        ? 'Anonymous report submitted successfully. Thank you for helping keep the web safe!'
+        : 'Report submitted successfully',
       data: {
         report_id: reportId,
         url: components.original_url,
         status: 'pending',
-        reported_at: reportResult.rows[0].reported_at
+        reported_at: reportResult.rows[0].reported_at,
+        anonymous: isAnonymous
       }
     });
 
   } catch (error) {
     console.error('❌ Submit report error:', error);
+    console.error('Error details:', error.message);
+    console.error('Error stack:', error.stack);
+    
+    // Provide more detailed error message
+    let errorMessage = 'Error submitting report';
+    if (error.message && error.message.includes('column') && error.message.includes('does not exist')) {
+      errorMessage = 'Database schema error. Please run the migration script: database/add_reporter_email.sql';
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
     res.status(500).json({
       service: 'AnLink API',
       success: false,
-      error: 'Error submitting report'
+      error: errorMessage
     });
   }
 };
@@ -135,10 +157,11 @@ exports.getReports = async (req, res) => {
         su.domain,
         u.full_name as reporter_name,
         u.email as reporter_email,
+        r.reporter_email as anonymous_reporter_email,
         COUNT(cf.feedback_id) as feedback_count
       FROM reports r
       JOIN suspicious_urls su ON r.url_id = su.url_id
-      JOIN users u ON r.reported_by = u.user_id
+      LEFT JOIN users u ON r.reported_by = u.user_id
       LEFT JOIN community_feedback cf ON r.report_id = cf.report_id
       WHERE 1=1
     `;
@@ -157,7 +180,7 @@ exports.getReports = async (req, res) => {
     }
 
     queryText += `
-      GROUP BY r.report_id, su.original_url, su.domain, u.full_name, u.email
+      GROUP BY r.report_id, su.original_url, su.domain, u.full_name, u.email, r.reporter_email
       ORDER BY r.priority DESC, r.reported_at DESC
       LIMIT $${paramCount++} OFFSET $${paramCount++}
     `;
@@ -213,8 +236,9 @@ exports.getReports = async (req, res) => {
 exports.getReportDetails = async (req, res) => {
   try {
     const { reportId } = req.params;
-    const userId = req.user.userId;
-    const userRole = req.user.role;
+    // User can be null for anonymous access
+    const userId = req.user?.userId || null;
+    const userRole = req.user?.role || null;
 
     // Get report details
     const reportResult = await query(`
@@ -227,11 +251,12 @@ exports.getReportDetails = async (req, res) => {
         su.path,
         u.full_name as reporter_name,
         u.email as reporter_email,
+        r.reporter_email as anonymous_reporter_email,
         reviewer.full_name as reviewer_name,
         assigned.full_name as assigned_name
       FROM reports r
       JOIN suspicious_urls su ON r.url_id = su.url_id
-      JOIN users u ON r.reported_by = u.user_id
+      LEFT JOIN users u ON r.reported_by = u.user_id
       LEFT JOIN users reviewer ON r.reviewed_by = reviewer.user_id
       LEFT JOIN users assigned ON r.assigned_to = assigned.user_id
       WHERE r.report_id = $1
@@ -247,8 +272,8 @@ exports.getReportDetails = async (req, res) => {
 
     const report = reportResult.rows[0];
 
-    // Check permissions
-    if (userRole === 'community_user' && report.reported_by !== userId) {
+    // Check permissions (only if user is authenticated and is a regular user)
+    if (userId && userRole === 'community_user' && report.reported_by !== userId) {
       return res.status(403).json({
         service: 'AnLink API',
         success: false,

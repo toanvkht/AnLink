@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const reportController = require('../controllers/reportController');
-const { authenticateToken, requireRole } = require('../middleware/authMiddleware');
+const { authenticateToken, requireRole, optionalAuth } = require('../middleware/authMiddleware');
 
 /**
  * @route   POST /api/reports
- * @desc    Submit a new phishing report
- * @access  Private (any authenticated user)
+ * @desc    Submit a new phishing report (supports anonymous)
+ * @access  Public (anonymous) or Private (authenticated)
  */
-router.post('/', authenticateToken, reportController.submitReport);
+router.post('/', optionalAuth, reportController.submitReport);
 
 /**
  * @route   GET /api/reports

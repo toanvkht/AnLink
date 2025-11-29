@@ -85,6 +85,19 @@ function detectPunycodeIDN(domain) {
 }
 
 /**
+ * Suspicious keywords that indicate phishing when combined with brand names
+ */
+const PHISHING_KEYWORDS = [
+  'secure', 'security', 'login', 'signin', 'sign-in', 'logon',
+  'verify', 'verification', 'validate', 'confirm', 'update',
+  'account', 'banking', 'online', 'web', 'portal', 'access',
+  'support', 'help', 'service', 'customer', 'client',
+  'auth', 'authenticate', 'password', 'credential',
+  'alert', 'warning', 'suspended', 'locked', 'limited',
+  'recover', 'restore', 'reset', 'unlock'
+];
+
+/**
  * Detect brand impersonation in domain
  * @param {string} domain - Domain to check
  * @param {string} subdomain - Subdomain to check
@@ -95,12 +108,17 @@ function detectBrandImpersonation(domain, subdomain = '') {
     detected: false,
     brand: null,
     reason: null,
-    score: 0
+    score: 0,
+    details: {}
   };
 
   const fullDomain = subdomain ? `${subdomain}.${domain}` : domain;
   const domainLower = domain.toLowerCase();
   const subdomainLower = (subdomain || '').toLowerCase();
+  
+  // Get domain name without TLD for analysis
+  const domainParts = domainLower.split('.');
+  const domainName = domainParts.length > 1 ? domainParts.slice(0, -1).join('.') : domainLower;
 
   for (const brand of ALL_BRAND_NAMES) {
     // Check if brand name appears in subdomain but not in main domain
@@ -108,37 +126,71 @@ function detectBrandImpersonation(domain, subdomain = '') {
       result.detected = true;
       result.brand = brand;
       result.reason = 'brand_in_subdomain_not_domain';
-      result.score = 0.70;
+      result.score = 0.75;
       return result;
     }
 
-    // Check for brand + suspicious keywords combinations
-    if (domainLower.includes(brand)) {
-      const suspiciousCombos = [
-        `${brand}-secure`,
-        `${brand}-verify`,
-        `${brand}-login`,
-        `${brand}-update`,
-        `${brand}-account`,
-        `secure-${brand}`,
-        `verify-${brand}`,
-        `login-${brand}`,
-        `my${brand}`,
-        `${brand}online`,
-        `${brand}support`,
-        `${brand}help`
-      ];
-
-      for (const combo of suspiciousCombos) {
-        if (fullDomain.toLowerCase().includes(combo)) {
-          result.detected = true;
-          result.brand = brand;
+    // Check if brand appears in domain name
+    if (domainName.includes(brand)) {
+      result.details.brand_found = brand;
+      
+      // Count suspicious keywords in the domain name
+      const keywordsFound = PHISHING_KEYWORDS.filter(keyword => 
+        domainName.includes(keyword)
+      );
+      
+      if (keywordsFound.length > 0) {
+        result.detected = true;
+        result.brand = brand;
+        result.details.keywords_found = keywordsFound;
+        
+        // Higher score for more keywords
+        if (keywordsFound.length >= 3) {
+          result.reason = 'brand_with_multiple_phishing_keywords';
+          result.score = 0.85;
+        } else if (keywordsFound.length >= 2) {
+          result.reason = 'brand_with_phishing_keywords';
+          result.score = 0.75;
+        } else {
           result.reason = 'brand_with_suspicious_keyword';
           result.score = 0.65;
+        }
+        return result;
+      }
+      
+      // Check if it's brand + random chars (not the official domain)
+      // e.g., "vietinbank123.tk" or "vietinbank-fake.com"
+      const brandIndex = domainName.indexOf(brand);
+      const beforeBrand = domainName.substring(0, brandIndex);
+      const afterBrand = domainName.substring(brandIndex + brand.length);
+      
+      // If there's extra content before or after the brand name
+      if (beforeBrand.length > 0 || afterBrand.length > 0) {
+        // Check if extra content contains hyphens or numbers (common in phishing)
+        if (beforeBrand.includes('-') || afterBrand.includes('-') || 
+            /\d/.test(beforeBrand) || /\d/.test(afterBrand)) {
+          result.detected = true;
+          result.brand = brand;
+          result.reason = 'brand_with_extra_content';
+          result.score = 0.55;
+          result.details.extra_before = beforeBrand;
+          result.details.extra_after = afterBrand;
           return result;
         }
       }
     }
+  }
+
+  // Also check for phishing keywords even without brand
+  const keywordsInDomain = PHISHING_KEYWORDS.filter(keyword => 
+    domainName.includes(keyword)
+  );
+  
+  if (keywordsInDomain.length >= 2) {
+    result.detected = true;
+    result.reason = 'multiple_phishing_keywords_in_domain';
+    result.score = 0.45;
+    result.details.keywords_found = keywordsInDomain;
   }
 
   return result;
@@ -301,9 +353,19 @@ async function analyzeDomain(domain, components = {}) {
     // ============================================
     // STEP 7: Suspicious TLD Check
     // ============================================
-    if (SUSPICIOUS_TLDS.some(tld => domain.endsWith(tld))) {
+    const matchedTLD = SUSPICIOUS_TLDS.find(tld => domain.endsWith(tld));
+    if (matchedTLD) {
       results.flags.push('suspicious_tld');
-      results.score = Math.max(results.score, 0.30);
+      results.details.suspicious_tld = matchedTLD;
+      
+      // Free TLDs (.tk, .ml, .ga, .cf, .gq) are extremely high risk
+      const freeTLDs = ['.tk', '.ml', '.ga', '.cf', '.gq'];
+      if (freeTLDs.includes(matchedTLD)) {
+        results.score = Math.max(results.score, 0.50);
+        results.flags.push('free_tld_high_risk');
+      } else {
+        results.score = Math.max(results.score, 0.35);
+      }
     }
 
     // ============================================

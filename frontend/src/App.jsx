@@ -47,15 +47,8 @@ function App() {
               }
             />
 
-            {/* Report Routes */}
-            <Route
-              path="/reports/new"
-              element={
-                <ProtectedRoute>
-                  <ReportPhishingPage />
-                </ProtectedRoute>
-              }
-            />
+            {/* Report Routes - Report submission is public (anonymous allowed) */}
+            <Route path="/reports/new" element={<ReportPhishingPage />} />
             <Route
               path="/reports"
               element={

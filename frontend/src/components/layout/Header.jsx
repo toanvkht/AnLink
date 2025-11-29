@@ -14,57 +14,71 @@ const Header = () => {
 
   return (
     <header className="bg-slate-900/95 backdrop-blur-lg border-b border-white/10 sticky top-0 z-50">
-      <nav className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
+      <nav className="container mx-auto px-3 py-3">
+        <div className="flex items-center justify-between gap-2 min-w-0">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 group">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-cyan-500/25 transition-all">
-              <span className="text-xl">🛡️</span>
+          <Link to="/" className="flex items-center space-x-2 group flex-shrink-0">
+            <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-cyan-500/25 transition-all">
+              <span className="text-lg">🛡️</span>
             </div>
-            <span className="text-2xl font-bold text-white group-hover:text-cyan-400 transition">
+            <span className="text-xl font-bold text-white group-hover:text-cyan-400 transition whitespace-nowrap">
               AnLink
             </span>
           </Link>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center space-x-1">
+          <div className="hidden md:flex items-center space-x-0.5 flex-shrink-0">
             <Link 
               to="/" 
-              className="px-4 py-2 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 transition-all"
+              className="px-2.5 py-2 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap text-sm"
             >
               Home
             </Link>
             <Link 
               to="/check" 
-              className="px-4 py-2 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 transition-all"
+              className="px-2.5 py-2 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap text-sm"
             >
               Check URL
+            </Link>
+            <Link 
+              to="/education" 
+              className="px-2.5 py-2 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap text-sm"
+            >
+              Education
             </Link>
             {isAuthenticated && (
               <>
                 <Link 
                   to="/history" 
-                  className="px-4 py-2 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 transition-all"
+                  className="px-2.5 py-2 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap text-sm"
                 >
                   History
                 </Link>
                 <Link 
                   to="/reports" 
-                  className="px-4 py-2 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 transition-all"
+                  className="px-2.5 py-2 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap text-sm"
                 >
                   Reports
                 </Link>
                 {(user?.role === 'moderator' || user?.role === 'admin') && (
                   <Link 
                     to="/moderator/queue" 
-                    className="px-4 py-2 rounded-lg text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 transition-all"
+                    className="px-2.5 py-2 rounded-lg text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 transition-all whitespace-nowrap text-sm"
                   >
                     Mod Queue
                   </Link>
                 )}
+                {user?.role === 'admin' && (
+                  <Link 
+                    to="/admin/education" 
+                    className="px-2.5 py-2 rounded-lg text-purple-300 hover:text-purple-200 hover:bg-purple-500/10 transition-all whitespace-nowrap text-sm"
+                  >
+                    Manage Content
+                  </Link>
+                )}
                 <Link 
                   to="/dashboard" 
-                  className="px-4 py-2 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 transition-all"
+                  className="px-2.5 py-2 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap text-sm"
                 >
                   Dashboard
                 </Link>
@@ -150,6 +164,13 @@ const Header = () => {
               >
                 Check URL
               </Link>
+              <Link 
+                to="/education" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-4 py-3 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 transition-all"
+              >
+                Education
+              </Link>
               {isAuthenticated && (
                 <>
                   <Link 
@@ -173,6 +194,15 @@ const Header = () => {
                       className="px-4 py-3 rounded-lg text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 transition-all"
                     >
                       Mod Queue
+                    </Link>
+                  )}
+                  {user?.role === 'admin' && (
+                    <Link 
+                      to="/admin/education" 
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="px-4 py-3 rounded-lg text-purple-300 hover:text-purple-200 hover:bg-purple-500/10 transition-all"
+                    >
+                      Manage Content
                     </Link>
                   )}
                   <Link 

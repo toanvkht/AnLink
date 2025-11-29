@@ -14,6 +14,14 @@ import ScanHistoryPage from './pages/ScanHistoryPage';
 import ReportPhishingPage from './pages/ReportPhishingPage';
 import MyReportsPage from './pages/MyReportsPage';
 import ModeratorQueuePage from './pages/ModeratorQueuePage';
+import EducationPage from './pages/EducationPage';
+import EducationDetailPage from './pages/EducationDetailPage';
+import QuizPage from './pages/QuizPage';
+import DownloadsPage from './pages/DownloadsPage';
+import AdminEducationPage from './pages/AdminEducationPage';
+import AdminUsersPage from './pages/AdminUsersPage';
+import AdminStatsPage from './pages/AdminStatsPage';
+import AdminLogsPage from './pages/AdminLogsPage';
 
 function App() {
   return (
@@ -28,6 +36,13 @@ function App() {
 
             {/* Public URL Check Route - Anyone can scan URLs */}
             <Route path="/check" element={<CheckUrlPage />} />
+
+            {/* Education Routes - Public */}
+            <Route path="/education" element={<EducationPage />} />
+            <Route path="/education/downloads" element={<DownloadsPage />} />
+            <Route path="/education/quiz" element={<QuizPage />} />
+            <Route path="/education/quiz/:slug" element={<QuizPage />} />
+            <Route path="/education/:slug" element={<EducationDetailPage />} />
 
             {/* Protected Routes - Require Authentication */}
             <Route
@@ -72,6 +87,40 @@ function App() {
               element={
                 <ProtectedRoute requiredRoles={['moderator', 'admin']}>
                   <ModeratorQueuePage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin Routes */}
+            <Route
+              path="/admin/education"
+              element={
+                <ProtectedRoute requiredRoles={['admin']}>
+                  <AdminEducationPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute requiredRoles={['admin']}>
+                  <AdminUsersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/stats"
+              element={
+                <ProtectedRoute requiredRoles={['admin']}>
+                  <AdminStatsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/logs"
+              element={
+                <ProtectedRoute requiredRoles={['admin']}>
+                  <AdminLogsPage />
                 </ProtectedRoute>
               }
             />

@@ -23,6 +23,10 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // Don't set Content-Type for FormData - let browser set it with boundary
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
     return config;
   },
   (error) => {
@@ -129,9 +133,17 @@ export const adminAPI = {
 export const educationAPI = {
   getContent: (params) => api.get('/education', { params }),
   getContentBySlug: (slug) => api.get(`/education/${slug}`),
-  createContent: (data) => api.post('/education', data),
-  updateContent: (contentId, data) => api.put(`/education/${contentId}`, data),
+  createContent: (data) => {
+    // FormData is handled automatically by axios - no special headers needed
+    return api.post('/education', data);
+  },
+  updateContent: (contentId, data) => {
+    // FormData is handled automatically by axios - no special headers needed
+    return api.put(`/education/${contentId}`, data);
+  },
   deleteContent: (contentId) => api.delete(`/education/${contentId}`),
+  submitQuizAttempt: (data) => api.post('/education/quiz/submit', data),
+  getQuizAttempts: (params) => api.get('/education/quiz/attempts', { params }),
 };
 
 export default api;

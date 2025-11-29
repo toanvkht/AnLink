@@ -135,25 +135,6 @@ const LoginForm = () => {
             Register here
           </Link>
         </p>
-
-        {/* Demo Credentials */}
-        <div className="mt-8 p-4 bg-white/5 rounded-xl border border-white/10">
-          <p className="text-sm font-medium text-blue-200 mb-3">Demo Credentials:</p>
-          <div className="text-xs text-blue-200/60 space-y-2">
-            <p className="flex items-center">
-              <span className="w-6">👤</span>
-              <span className="font-mono">user1@gmail.com / User123!</span>
-            </p>
-            <p className="flex items-center">
-              <span className="w-6">👮</span>
-              <span className="font-mono">moderator@anlink.vn / Mod123!</span>
-            </p>
-            <p className="flex items-center">
-              <span className="w-6">👑</span>
-              <span className="font-mono">admin@anlink.vn / Admin123!</span>
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );

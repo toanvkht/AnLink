@@ -1,10 +1,16 @@
+/**
+ * Scan Routes
+ * AnLink Anti-Phishing System
+ */
+
 const express = require('express');
 const router = express.Router();
 const scanController = require('../controllers/scanController');
-const { verifyToken } = require('../middleware/authMiddleware');
+const { verifyToken, optionalAuth } = require('../middleware/authMiddleware');
 
-// Public endpoint - anyone can scan
-router.post('/check', scanController.scanURL);
+// Public endpoints - anyone can scan
+router.post('/check', optionalAuth, scanController.scanURL);
+router.post('/quick', scanController.quickCheck);
 
 // Protected endpoints - require authentication
 router.get('/history', verifyToken, scanController.getScanHistory);

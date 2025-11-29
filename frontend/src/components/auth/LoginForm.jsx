@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../services/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
@@ -18,7 +18,6 @@ const LoginForm = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
-    // Clear error when user types
     if (error) setError('');
   };
 
@@ -27,7 +26,6 @@ const LoginForm = () => {
     setError('');
     setLoading(true);
 
-    // Validation
     if (!formData.email || !formData.password) {
       setError('Please fill in all fields');
       setLoading(false);
@@ -38,7 +36,6 @@ const LoginForm = () => {
       const result = await login(formData.email, formData.password);
 
       if (result.success) {
-        // Redirect based on role
         navigate('/dashboard');
       } else {
         setError(result.error || 'Login failed');
@@ -51,21 +48,31 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="w-full max-w-md">
-      <div className="bg-white rounded-lg shadow-lg p-8">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-2">Welcome Back</h2>
-        <p className="text-center text-gray-600 mb-8">Login to your AnLink account</p>
+    <div className="w-full">
+      <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 mb-4">
+            <span className="text-3xl">🔐</span>
+          </div>
+          <h2 className="text-3xl font-bold text-white mb-2">Welcome Back</h2>
+          <p className="text-blue-200/70">Login to your AnLink account</p>
+        </div>
 
+        {/* Error Display */}
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
+          <div className="bg-red-500/20 border border-red-400/50 rounded-xl p-4 mb-6">
+            <p className="text-red-200 text-sm flex items-center">
+              <span className="mr-2">❌</span>
+              {error}
+            </p>
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
           {/* Email Field */}
-          <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
+          <div className="mb-5">
+            <label htmlFor="email" className="block text-blue-100 font-medium mb-2 text-sm">
               Email Address
             </label>
             <input
@@ -74,7 +81,7 @@ const LoginForm = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-blue-200/50 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all"
               placeholder="you@example.com"
               required
             />
@@ -82,7 +89,7 @@ const LoginForm = () => {
 
           {/* Password Field */}
           <div className="mb-6">
-            <label htmlFor="password" className="block text-gray-700 font-medium mb-2">
+            <label htmlFor="password" className="block text-blue-100 font-medium mb-2 text-sm">
               Password
             </label>
             <input
@@ -91,7 +98,7 @@ const LoginForm = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-blue-200/50 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all"
               placeholder="••••••••"
               required
             />
@@ -101,31 +108,50 @@ const LoginForm = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 rounded-lg font-medium text-white transition ${
+            className={`w-full py-4 rounded-xl font-semibold text-lg transition-all transform ${
               loading
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700'
+                ? 'bg-gray-500 cursor-not-allowed'
+                : 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white shadow-lg hover:shadow-cyan-500/25 hover:scale-[1.02]'
             }`}
           >
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Logging in...
+              </span>
+            ) : (
+              'Login'
+            )}
           </button>
         </form>
 
         {/* Register Link */}
-        <p className="text-center text-gray-600 mt-6">
+        <p className="text-center text-blue-200/70 mt-6">
           Don't have an account?{' '}
-          <Link to="/register" className="text-blue-600 hover:text-blue-700 font-medium">
+          <Link to="/register" className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors">
             Register here
           </Link>
         </p>
 
         {/* Demo Credentials */}
-        <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-          <p className="text-sm font-medium text-gray-700 mb-2">Demo Credentials:</p>
-          <div className="text-xs text-gray-600 space-y-1">
-            <p>👤 User: user1@gmail.com / User123!</p>
-            <p>👮 Moderator: moderator@anlink.vn / Mod123!</p>
-            <p>👑 Admin: admin@anlink.vn / Admin123!</p>
+        <div className="mt-8 p-4 bg-white/5 rounded-xl border border-white/10">
+          <p className="text-sm font-medium text-blue-200 mb-3">Demo Credentials:</p>
+          <div className="text-xs text-blue-200/60 space-y-2">
+            <p className="flex items-center">
+              <span className="w-6">👤</span>
+              <span className="font-mono">user1@gmail.com / User123!</span>
+            </p>
+            <p className="flex items-center">
+              <span className="w-6">👮</span>
+              <span className="font-mono">moderator@anlink.vn / Mod123!</span>
+            </p>
+            <p className="flex items-center">
+              <span className="w-6">👑</span>
+              <span className="font-mono">admin@anlink.vn / Admin123!</span>
+            </p>
           </div>
         </div>
       </div>

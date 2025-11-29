@@ -78,6 +78,7 @@ app.use((req, res) => {
       'PUT  /api/auth/profile',
       'POST /api/auth/change-password',
       'POST /api/scan/check',
+      'POST /api/scan/quick',
       'GET  /api/scan/history',
       'GET  /api/scan/details/:checkId',
       'POST /api/reports',
@@ -138,6 +139,7 @@ app.listen(PORT, () => {
   console.log('   POST /api/auth/change-password');
   console.log('\n🔍 URL Scanning:');
   console.log('   POST /api/scan/check');
+  console.log('   POST /api/scan/quick');
   console.log('   GET  /api/scan/history');
   console.log('   GET  /api/scan/details/:checkId');
   console.log('\n📢 Reports:');

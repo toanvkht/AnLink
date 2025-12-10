@@ -1,6 +1,6 @@
 /**
  * Check URL Page
- * AnLink Anti-Phishing System
+ * AnLink Anti-phishing system
  * 
  * Main page for URL scanning and analysis results display.
  */
@@ -133,7 +133,7 @@ const CheckUrlPage = () => {
             <span className="text-4xl">🔍</span>
           </div>
           <h1 className="text-4xl font-bold text-white mb-4">
-            URL Safety Scanner
+            URL safety scanner
           </h1>
           <p className="text-lg text-blue-200">
             Analyze URLs for phishing threats using advanced pattern detection
@@ -240,7 +240,7 @@ const CheckUrlPage = () => {
                         <div className="text-4xl font-bold">
                           {(result.score * 100).toFixed(1)}%
                         </div>
-                        <div className="text-sm text-white/80">Risk Score</div>
+                        <div className="text-sm text-white/80">Risk score</div>
                       </div>
                     </div>
                   </div>
@@ -281,13 +281,13 @@ const CheckUrlPage = () => {
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-xl font-bold text-gray-800 flex items-center">
                     <span className="mr-2">📊</span>
-                    Component Analysis
+                    Component analysis
                   </h3>
                   <button
                     onClick={() => setShowDetails(!showDetails)}
                     className="text-blue-600 hover:text-blue-700 font-medium text-sm"
                   >
-                    {showDetails ? 'Hide Details' : 'Show Details'}
+                    {showDetails ? 'Hide details' : 'Show details'}
                   </button>
                 </div>
 
@@ -301,7 +301,7 @@ const CheckUrlPage = () => {
                 {/* Weights Explanation */}
                 {result.algorithm.breakdown && (
                   <div className="bg-gray-50 rounded-lg p-4">
-                    <h4 className="font-medium text-gray-700 mb-3">Score Breakdown:</h4>
+                    <h4 className="font-medium text-gray-700 mb-3">Score breakdown:</h4>
                     <div className="space-y-2">
                       {Object.entries(result.algorithm.breakdown).map(([comp, data]) => (
                         <div key={comp} className="flex items-center justify-between text-sm">
@@ -317,7 +317,7 @@ const CheckUrlPage = () => {
                         </div>
                       ))}
                       <div className="border-t pt-2 mt-2 flex justify-between font-bold">
-                        <span>Total Score</span>
+                        <span>Total score</span>
                         <span className={getScoreColor(result.score)}>
                           {(result.score * 100).toFixed(1)}%
                         </span>
@@ -329,7 +329,7 @@ const CheckUrlPage = () => {
                 {/* Detailed Flags */}
                 {showDetails && result.algorithm.details && (
                   <div className="mt-6 border-t pt-6">
-                    <h4 className="font-medium text-gray-700 mb-4">All Detected Patterns:</h4>
+                    <h4 className="font-medium text-gray-700 mb-4">All detected patterns:</h4>
                     <div className="space-y-4">
                       {Object.entries(result.algorithm.details).map(([comp, data]) => (
                         data.flags && data.flags.length > 0 && (
@@ -366,7 +366,7 @@ const CheckUrlPage = () => {
                 <div className="flex items-start">
                   <span className="text-3xl mr-4">🔗</span>
                   <div>
-                    <h4 className="font-bold text-amber-800 mb-2">URL Shortener Detected</h4>
+                    <h4 className="font-bold text-amber-800 mb-2">URL shortener detected</h4>
                     <p className="text-amber-700">
                       This URL uses a shortener service ({result.shortener}). 
                       We cannot verify the final destination without expanding it.
@@ -386,7 +386,7 @@ const CheckUrlPage = () => {
               <div className="bg-red-50 border-2 border-red-300 rounded-2xl p-6">
                 <h4 className="font-bold text-red-800 mb-4 flex items-center">
                   <span className="mr-2">🚨</span>
-                  Known Phishing Alert
+                  Known phishing alert
                 </h4>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
@@ -403,7 +403,7 @@ const CheckUrlPage = () => {
                   </div>
                   {result.phishing_info.target_brand && (
                     <div className="col-span-2">
-                      <span className="text-red-600">Target Brand:</span>
+                      <span className="text-red-600">Target brand:</span>
                       <span className="ml-2 font-medium text-red-800">
                         {result.phishing_info.target_brand}
                       </span>
@@ -423,7 +423,7 @@ const CheckUrlPage = () => {
                 }}
                 className="flex-1 py-4 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-xl font-medium transition-all"
               >
-                🔄 Check Another URL
+                🔄 Check another URL
               </button>
               <button
                 onClick={() => {
@@ -432,7 +432,7 @@ const CheckUrlPage = () => {
                 }}
                 className="flex-1 py-4 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white rounded-xl font-medium transition-all"
               >
-                🚨 Report This Site
+                🚨 Report this site
               </button>
             </div>
           </div>
@@ -442,7 +442,7 @@ const CheckUrlPage = () => {
         <div className="mt-12 bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
           <h3 className="text-xl font-bold text-white mb-6 flex items-center">
             <span className="mr-2">💡</span>
-            How Our Scanner Works
+            How our scanner works
           </h3>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="flex items-start">
@@ -450,7 +450,7 @@ const CheckUrlPage = () => {
                 <span>🔍</span>
               </div>
               <div>
-                <h4 className="font-medium text-white mb-1">Domain Analysis</h4>
+                <h4 className="font-medium text-white mb-1">Domain analysis</h4>
                 <p className="text-blue-200 text-sm">
                   Detects typosquatting, homoglyphs, and brand impersonation using similarity algorithms.
                 </p>
@@ -461,7 +461,7 @@ const CheckUrlPage = () => {
                 <span>🎯</span>
               </div>
               <div>
-                <h4 className="font-medium text-white mb-1">Pattern Detection</h4>
+                <h4 className="font-medium text-white mb-1">Pattern detection</h4>
                 <p className="text-blue-200 text-sm">
                   Identifies suspicious keywords, unusual structures, and known phishing patterns.
                 </p>
@@ -472,7 +472,7 @@ const CheckUrlPage = () => {
                 <span>🛡️</span>
               </div>
               <div>
-                <h4 className="font-medium text-white mb-1">Heuristic Analysis</h4>
+                <h4 className="font-medium text-white mb-1">Heuristic analysis</h4>
                 <p className="text-blue-200 text-sm">
                   Checks for suspicious TLDs, IP addresses, URL shorteners, and encoding tricks.
                 </p>
@@ -483,7 +483,7 @@ const CheckUrlPage = () => {
                 <span>📊</span>
               </div>
               <div>
-                <h4 className="font-medium text-white mb-1">Risk Scoring</h4>
+                <h4 className="font-medium text-white mb-1">Risk scoring</h4>
                 <p className="text-blue-200 text-sm">
                   Combines all factors into a weighted score with clear safe/suspicious/dangerous classification.
                 </p>
@@ -494,7 +494,7 @@ const CheckUrlPage = () => {
 
         {/* Footer */}
         <div className="mt-8 text-center text-blue-300 text-sm">
-          <p>AnLink Anti-Phishing System • Protecting users from malicious websites</p>
+          <p>AnLink Anti-phishing system • Protecting users from malicious websites</p>
         </div>
       </div>
 

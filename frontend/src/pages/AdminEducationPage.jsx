@@ -1,9 +1,22 @@
+/**
+ * AdminEducationPage Component
+ * 
+ * Admin interface for managing educational content. Allows admins to:
+ * - Create, edit, and delete educational materials
+ * - Upload media files (images, videos, PDFs)
+ * - Create and manage quiz content with interactive question editor
+ * - Manage content types: articles, videos, infographics, quizzes
+ * 
+ * @component
+ */
 import React, { useState, useEffect } from 'react';
 import { educationAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 const AdminEducationPage = () => {
   const { user } = useAuth();
+  
+  // State management
   const [content, setContent] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
@@ -23,6 +36,7 @@ const AdminEducationPage = () => {
     { id: 1, question: '', options: ['', ''], correct: 0, explanation: '' }
   ]);
 
+  // Fetch content on component mount
   useEffect(() => {
     fetchContent();
   }, []);
@@ -41,6 +55,9 @@ const AdminEducationPage = () => {
     }
   }, [formData.content_type]);
 
+  /**
+   * Fetches all education content from the API
+   */
   const fetchContent = async () => {
     try {
       setLoading(true);
@@ -54,6 +71,10 @@ const AdminEducationPage = () => {
     }
   };
 
+  /**
+   * Handles input field changes
+   * @param {Event} e - Input change event
+   */
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     
@@ -73,6 +94,12 @@ const AdminEducationPage = () => {
     }));
   };
 
+  /**
+   * Generates a URL-friendly slug from a title
+   * Removes URLs, normalizes text, and creates a clean slug
+   * @param {string} title - Title to convert to slug
+   * @returns {string} Generated slug
+   */
   const generateSlug = (title) => {
     if (!title || typeof title !== 'string') {
       return '';
@@ -91,6 +118,10 @@ const AdminEducationPage = () => {
       .substring(0, 200); // Limit length
   };
 
+  /**
+   * Handles title input changes and auto-generates slug
+   * @param {Event} e - Input change event
+   */
   const handleTitleChange = (e) => {
     const title = e.target.value;
     setFormData(prev => ({
@@ -100,6 +131,10 @@ const AdminEducationPage = () => {
     }));
   };
 
+  /**
+   * Handles form submission for creating or updating content
+   * @param {Event} e - Form submit event
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -198,6 +233,11 @@ const AdminEducationPage = () => {
     }
   };
 
+  /**
+   * Prepares the edit form with content data
+   * Auto-fixes invalid slugs and parses quiz questions
+   * @param {Object} item - Content item to edit
+   */
   const handleEdit = async (item) => {
     try {
       // Use the item directly since we already have all the data from the list
@@ -259,6 +299,11 @@ const AdminEducationPage = () => {
     }
   };
 
+  /**
+   * Deletes a content item after confirmation
+   * @param {string} contentId - Content ID to delete
+   * @param {string} title - Content title for confirmation message
+   */
   const handleDelete = async (contentId, title) => {
     if (!window.confirm(`Are you sure you want to delete "${title}"?`)) {
       return;
@@ -273,6 +318,9 @@ const AdminEducationPage = () => {
     }
   };
 
+  /**
+   * Cancels the form and resets all form state
+   */
   const handleCancel = () => {
     setShowForm(false);
     setEditing(null);
@@ -290,13 +338,29 @@ const AdminEducationPage = () => {
     });
   };
 
-  // Quiz Question Editor Component
+  /**
+   * Quiz Question Editor Component
+   * 
+   * Interactive editor for creating and managing quiz questions
+   * Allows adding/removing questions and options, setting correct answers
+   * 
+   * @component
+   * @param {Array} questions - Array of question objects
+   * @param {Function} setQuestions - Function to update questions array
+   */
   const QuizQuestionEditor = ({ questions, setQuestions }) => {
+    /**
+     * Adds a new question to the quiz
+     */
     const addQuestion = () => {
       const newId = Math.max(...questions.map(q => q.id), 0) + 1;
       setQuestions([...questions, { id: newId, question: '', options: ['', ''], correct: 0, explanation: '' }]);
     };
 
+    /**
+     * Removes a question from the quiz
+     * @param {number} id - Question ID to remove
+     */
     const removeQuestion = (id) => {
       if (questions.length > 1) {
         setQuestions(questions.filter(q => q.id !== id));
@@ -305,12 +369,22 @@ const AdminEducationPage = () => {
       }
     };
 
+    /**
+     * Updates a question field
+     * @param {number} id - Question ID
+     * @param {string} field - Field name to update
+     * @param {*} value - New value
+     */
     const updateQuestion = (id, field, value) => {
       setQuestions(questions.map(q => 
         q.id === id ? { ...q, [field]: value } : q
       ));
     };
 
+    /**
+     * Adds an option to a question
+     * @param {number} questionId - Question ID
+     */
     const addOption = (questionId) => {
       setQuestions(questions.map(q => 
         q.id === questionId 
@@ -319,6 +393,12 @@ const AdminEducationPage = () => {
       ));
     };
 
+    /**
+     * Removes an option from a question
+     * Adjusts correct answer index if needed
+     * @param {number} questionId - Question ID
+     * @param {number} optionIndex - Option index to remove
+     */
     const removeOption = (questionId, optionIndex) => {
       setQuestions(questions.map(q => {
         if (q.id === questionId) {
@@ -334,6 +414,12 @@ const AdminEducationPage = () => {
       }));
     };
 
+    /**
+     * Updates an option value
+     * @param {number} questionId - Question ID
+     * @param {number} optionIndex - Option index
+     * @param {string} value - New option value
+     */
     const updateOption = (questionId, optionIndex, value) => {
       setQuestions(questions.map(q => 
         q.id === questionId 
@@ -364,7 +450,7 @@ const AdminEducationPage = () => {
             
             <div className="space-y-3">
               <div>
-                <label className="block text-blue-100 text-xs font-medium mb-1">Question Text</label>
+                <label className="block text-blue-100 text-xs font-medium mb-1">Question text</label>
                 <input
                   type="text"
                   value={q.question}
@@ -375,7 +461,7 @@ const AdminEducationPage = () => {
               </div>
 
               <div>
-                <label className="block text-blue-100 text-xs font-medium mb-2">Answer Options</label>
+                <label className="block text-blue-100 text-xs font-medium mb-2">Answer options</label>
                 {q.options.map((option, optIdx) => (
                   <div key={optIdx} className="flex items-center gap-2 mb-2">
                     <input
@@ -408,7 +494,7 @@ const AdminEducationPage = () => {
                   onClick={() => addOption(q.id)}
                   className="mt-2 px-3 py-1 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 rounded-lg text-xs transition-all"
                 >
-                  + Add Option
+                  + Add option
                 </button>
               </div>
 
@@ -431,7 +517,7 @@ const AdminEducationPage = () => {
           onClick={addQuestion}
           className="w-full px-4 py-3 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 rounded-xl font-medium transition-all border border-cyan-500/30"
         >
-          + Add Question
+                  + Add question
         </button>
       </div>
     );
@@ -442,7 +528,7 @@ const AdminEducationPage = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
         <div className="text-center bg-white/10 backdrop-blur-lg rounded-2xl p-12 border border-white/20">
           <span className="text-5xl mb-4 block">🚫</span>
-          <h1 className="text-2xl font-bold text-white mb-4">Access Denied</h1>
+          <h1 className="text-2xl font-bold text-white mb-4">Access denied</h1>
           <p className="text-blue-200/70">Only administrators can manage education content.</p>
         </div>
       </div>
@@ -462,7 +548,7 @@ const AdminEducationPage = () => {
             onClick={() => setShowForm(true)}
             className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-xl font-medium transition-all"
           >
-            + Create New Content
+            + Create new content
           </button>
         </div>
 
@@ -471,7 +557,7 @@ const AdminEducationPage = () => {
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-slate-800 rounded-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-white/10">
               <h2 className="text-2xl font-bold text-white mb-6">
-                {editing ? 'Edit Content' : 'Create New Content'}
+                {editing ? 'Edit content' : 'Create new content'}
               </h2>
               
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -508,7 +594,7 @@ const AdminEducationPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-blue-100 text-sm font-medium mb-2">
-                      Content Type *
+                      Content type *
                     </label>
                     <select
                       name="content_type"
@@ -555,7 +641,7 @@ const AdminEducationPage = () => {
 
                   <div>
                     <label className="block text-blue-100 text-sm font-medium mb-2">
-                      Difficulty Level
+                      Difficulty level
                     </label>
                     <select
                       name="difficulty_level"
@@ -579,7 +665,7 @@ const AdminEducationPage = () => {
 
                 <div>
                   <label className="block text-blue-100 text-sm font-medium mb-2">
-                    Media File (Image/Video/PDF)
+                    Media file (image/video/PDF)
                   </label>
                   <input
                     type="file"
@@ -683,7 +769,7 @@ const AdminEducationPage = () => {
           </div>
         )}
 
-        {/* Content List */}
+        {/* Content list */}
         {loading ? (
           <div className="text-center py-12">
             <div className="w-16 h-16 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>

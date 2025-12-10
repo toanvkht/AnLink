@@ -201,7 +201,7 @@ const ReportPhishingPage = () => {
         <div>
           <h4 className="text-white font-semibold mb-3 flex items-center text-sm">
             <span className="mr-2">🌐</span>
-            Domain & URL Information
+            Domain & URL information
           </h4>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
             <div className="bg-black/20 rounded-lg p-2">
@@ -226,7 +226,7 @@ const ReportPhishingPage = () => {
             )}
             {urlInfo.is_ip && (
               <div className="bg-red-500/20 rounded-lg p-2 border border-red-500/30">
-                <div className="text-red-300 text-xs mb-1">⚠️ IP Address Detected</div>
+                <div className="text-red-300 text-xs mb-1">⚠️ IP address detected</div>
                 <div className="text-red-400 font-mono text-xs">{urlInfo.domain}</div>
               </div>
             )}
@@ -238,7 +238,7 @@ const ReportPhishingPage = () => {
             )}
             {urlInfo.url_length && (
               <div className="bg-black/20 rounded-lg p-2">
-                <div className="text-blue-200/60 text-xs mb-1">URL Length</div>
+                <div className="text-blue-200/60 text-xs mb-1">URL length</div>
                 <div className="text-white font-mono text-xs">{urlInfo.url_length} chars</div>
               </div>
             )}
@@ -250,7 +250,7 @@ const ReportPhishingPage = () => {
           <div>
             <h4 className="text-white font-semibold mb-3 flex items-center text-sm">
               <span className="mr-2">📊</span>
-              Component Analysis
+              Component analysis
             </h4>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
               {hasDetails ? (
@@ -305,7 +305,7 @@ const ReportPhishingPage = () => {
           <div>
             <h4 className="text-white font-semibold mb-3 flex items-center text-sm">
               <span className="mr-2">🚩</span>
-              Detected Patterns
+              Detected patterns
             </h4>
             <div className="flex flex-wrap gap-1">
               {Object.entries(componentDetails).flatMap(([comp, data]) => 
@@ -351,7 +351,7 @@ const ReportPhishingPage = () => {
                   </div>
                 ))}
                 <div className="border-t border-white/10 pt-1 mt-1 flex justify-between font-bold text-xs">
-                  <span className="text-white">Total Risk Score</span>
+                  <span className="text-white">Total risk score</span>
                   <span className={getScoreColor(result.score || 0)}>
                     {((result.score || 0) * 100).toFixed(1)}%
                   </span>
@@ -373,7 +373,7 @@ const ReportPhishingPage = () => {
             <span className="text-4xl">🚨</span>
           </div>
           <h1 className="text-4xl font-bold text-white mb-4">
-            Report Phishing Site
+            Report phishing site
           </h1>
           <p className="text-lg text-blue-200">
             Help protect the community by reporting suspicious websites
@@ -409,7 +409,7 @@ const ReportPhishingPage = () => {
             <div className="flex items-start">
               <span className="text-2xl mr-3">👤</span>
               <div>
-                <h3 className="text-blue-200 font-semibold mb-1">Reporting Anonymously</h3>
+                <h3 className="text-blue-200 font-semibold mb-1">Reporting anonymously</h3>
                 <p className="text-blue-200/70 text-sm">
                   You're submitting an anonymous report. 
                   <Link to="/login" className="text-cyan-400 hover:text-cyan-300 ml-1">
@@ -456,7 +456,7 @@ const ReportPhishingPage = () => {
                 ) : (
                   <span className="flex items-center">
                     <span className="mr-2">🔍</span>
-                    Pre-Scan
+                    Pre-scan
                   </span>
                 )}
               </button>
@@ -481,7 +481,7 @@ const ReportPhishingPage = () => {
                       onClick={() => setShowDetails(!showDetails)}
                       className="text-xs px-3 py-1 bg-black/20 rounded-lg text-blue-200 hover:bg-black/30 transition-all"
                     >
-                      {showDetails ? '▲ Hide Details' : '▼ Show Details'}
+                      {showDetails ? '▲ Hide details' : '▼ Show details'}
                     </button>
                   </div>
                 </div>
@@ -501,13 +501,13 @@ const ReportPhishingPage = () => {
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-6 border border-white/20">
             <h2 className="text-xl font-bold text-white mb-4 flex items-center">
               <span className="mr-2">📝</span>
-              Report Details
+              Report details
             </h2>
 
             {/* Report Reason */}
             <div className="mb-4">
               <label className="block text-blue-100 font-medium mb-2">
-                Report Reason <span className="text-red-400">*</span>
+                Report reason <span className="text-red-400">*</span>
               </label>
               <select
                 name="report_reason"
@@ -528,7 +528,7 @@ const ReportPhishingPage = () => {
             {/* Incident Description */}
             <div className="mb-4">
               <label className="block text-blue-100 font-medium mb-2">
-                Incident Description
+                Incident description
                 <span className="text-blue-200/50 ml-2">(Optional)</span>
               </label>
               <textarea
@@ -545,7 +545,7 @@ const ReportPhishingPage = () => {
             {!isAuthenticated && (
               <div className="mb-4">
                 <label className="block text-blue-100 font-medium mb-2">
-                  Your Email
+                  Your email
                   <span className="text-blue-200/50 ml-2">(Optional - for follow-up)</span>
                 </label>
                 <input
@@ -567,7 +567,7 @@ const ReportPhishingPage = () => {
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-8 border border-white/20">
             <h2 className="text-xl font-bold text-white mb-4 flex items-center">
               <span className="mr-2">📎</span>
-              Evidence Links
+              Evidence links
               <span className="text-blue-200/50 text-sm font-normal ml-2">(Optional)</span>
             </h2>
             <p className="text-blue-200/70 text-sm mb-4">
@@ -622,12 +622,12 @@ const ReportPhishingPage = () => {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
-                Submitting Report...
+                Submitting report...
               </span>
             ) : (
               <span className="flex items-center justify-center">
                 <span className="mr-2">🚨</span>
-                Submit Report
+                Submit report
               </span>
             )}
           </button>
@@ -635,7 +635,7 @@ const ReportPhishingPage = () => {
 
         {/* Help Section */}
         <div className="mt-12 bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10">
-          <h3 className="text-lg font-bold text-white mb-4">💡 Tips for a Good Report</h3>
+          <h3 className="text-lg font-bold text-white mb-4">💡 Tips for a good report</h3>
           <ul className="space-y-2 text-blue-200/70 text-sm">
             <li className="flex items-start">
               <span className="mr-2">•</span>

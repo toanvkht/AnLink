@@ -1,7 +1,26 @@
+/**
+ * Education Controller
+ * 
+ * Handles all education-related API endpoints including:
+ * - Content CRUD operations
+ * - Quiz submission and attempts
+ * - Content filtering and access control
+ * 
+ * @module controllers/educationController
+ */
 const { query } = require('../config/database');
 
 /**
- * Get all education content (published only for regular users)
+ * Get all education content
+ * Published content only for regular users, all content for admins/moderators
+ * 
+ * @route GET /api/education
+ * @param {string} content_type - Filter by content type (article, video, infographic, quiz)
+ * @param {string} language - Filter by language (vi, en)
+ * @param {string} difficulty_level - Filter by difficulty (beginner, intermediate, advanced)
+ * @param {number} limit - Number of results to return
+ * @param {number} offset - Pagination offset
+ * @returns {Object} Education content array with pagination
  */
 exports.getContent = async (req, res) => {
   try {
@@ -90,6 +109,11 @@ exports.getContent = async (req, res) => {
 
 /**
  * Get single education content by ID (admin only)
+ * Used for editing content in admin panel
+ * 
+ * @route GET /api/education/id/:contentId
+ * @param {string} contentId - Content ID
+ * @returns {Object} Education content details
  */
 exports.getContentById = async (req, res) => {
   try {
@@ -126,6 +150,11 @@ exports.getContentById = async (req, res) => {
 
 /**
  * Get single education content by slug
+ * Admins and moderators can view unpublished content
+ * 
+ * @route GET /api/education/:slug
+ * @param {string} slug - Content slug (URL-friendly identifier)
+ * @returns {Object} Education content details
  */
 exports.getContentBySlug = async (req, res) => {
   try {
@@ -182,6 +211,19 @@ exports.getContentBySlug = async (req, res) => {
 
 /**
  * Create new education content (admin only)
+ * Supports file uploads for media files
+ * 
+ * @route POST /api/education
+ * @param {string} title - Content title
+ * @param {string} slug - URL-friendly slug (auto-generated if not provided)
+ * @param {string} content_type - Type: article, video, infographic, quiz
+ * @param {string} content_body - Content body (HTML or JSON for quizzes)
+ * @param {File} media_file - Optional uploaded media file
+ * @param {string} media_url - Optional media URL (if no file uploaded)
+ * @param {string} language - Language code (vi, en)
+ * @param {string} difficulty_level - Difficulty: beginner, intermediate, advanced
+ * @param {boolean} is_published - Whether content is published
+ * @returns {Object} Created content object
  */
 exports.createContent = async (req, res) => {
   try {
@@ -298,6 +340,12 @@ exports.createContent = async (req, res) => {
 
 /**
  * Update education content (admin only)
+ * Supports file uploads for media files
+ * 
+ * @route PUT /api/education/:contentId
+ * @param {string} contentId - Content ID to update
+ * @param {Object} body - Fields to update (same as createContent)
+ * @returns {Object} Updated content object
  */
 exports.updateContent = async (req, res) => {
   try {
@@ -473,6 +521,10 @@ exports.updateContent = async (req, res) => {
 
 /**
  * Delete education content (admin only)
+ * 
+ * @route DELETE /api/education/:contentId
+ * @param {string} contentId - Content ID to delete
+ * @returns {Object} Success message
  */
 exports.deleteContent = async (req, res) => {
   try {
@@ -512,6 +564,15 @@ exports.deleteContent = async (req, res) => {
 
 /**
  * Submit quiz attempt
+ * Allows anonymous submissions (userId can be null)
+ * 
+ * @route POST /api/education/quiz/submit
+ * @param {string} content_id - Quiz content ID
+ * @param {number} score - Score achieved
+ * @param {number} max_score - Maximum possible score
+ * @param {number} time_taken_seconds - Time taken in seconds
+ * @param {Object} answers - User answers (JSON)
+ * @returns {Object} Created quiz attempt record
  */
 exports.submitQuizAttempt = async (req, res) => {
   try {
@@ -589,6 +650,12 @@ exports.submitQuizAttempt = async (req, res) => {
 
 /**
  * Get user's quiz attempts
+ * Returns all quiz attempts for the authenticated user
+ * 
+ * @route GET /api/education/quiz/attempts
+ * @param {number} limit - Number of results to return
+ * @param {number} offset - Pagination offset
+ * @returns {Object} Quiz attempts array with pagination
  */
 exports.getQuizAttempts = async (req, res) => {
   try {

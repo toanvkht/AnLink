@@ -1,3 +1,11 @@
+/**
+ * DashboardPage Component
+ * 
+ * Main dashboard displaying user statistics, recent activity, and quick actions.
+ * Shows different sections based on user role (regular user, moderator, admin).
+ * 
+ * @component
+ */
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -5,6 +13,8 @@ import { scanAPI, reportsAPI, moderatorAPI } from '../services/api';
 
 const DashboardPage = () => {
   const { user } = useAuth();
+  
+  // State management
   const [stats, setStats] = useState({
     totalScans: 0,
     safeUrls: 0,
@@ -18,10 +28,14 @@ const DashboardPage = () => {
   const [modStats, setModStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Fetch dashboard data when user changes
   useEffect(() => {
     fetchDashboardData();
   }, [user]);
 
+  /**
+   * Fetches all dashboard data including scans, reports, and moderator stats
+   */
   const fetchDashboardData = async () => {
     try {
       // Fetch scan history
@@ -68,6 +82,11 @@ const DashboardPage = () => {
     }
   };
 
+  /**
+   * Returns gradient classes for role badge
+   * @param {string} role - User role
+   * @returns {string} Tailwind CSS gradient classes
+   */
   const getRoleBadge = (role) => {
     const styles = {
       admin: 'from-red-500 to-rose-600',
@@ -77,6 +96,11 @@ const DashboardPage = () => {
     return styles[role] || styles.registered_user;
   };
 
+  /**
+   * Returns styling for scan result
+   * @param {string} result - Scan result (safe, suspicious, dangerous)
+   * @returns {Object} Text color and icon
+   */
   const getResultStyles = (result) => {
     switch (result) {
       case 'safe':
@@ -90,6 +114,11 @@ const DashboardPage = () => {
     }
   };
 
+  /**
+   * Returns styling for report status
+   * @param {string} status - Report status
+   * @returns {Object} Background and text color classes
+   */
   const getStatusStyles = (status) => {
     switch (status) {
       case 'pending':
@@ -142,7 +171,7 @@ const DashboardPage = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-5 border border-white/10 text-center">
               <div className="text-3xl font-bold text-white mb-1">{stats.totalScans}</div>
-              <div className="text-blue-200/60 text-sm">URLs Scanned</div>
+              <div className="text-blue-200/60 text-sm">URLs scanned</div>
             </div>
             <div className="bg-emerald-500/10 backdrop-blur-lg rounded-2xl p-5 border border-emerald-500/30 text-center">
               <div className="text-3xl font-bold text-emerald-400 mb-1">{stats.safeUrls}</div>
@@ -158,7 +187,7 @@ const DashboardPage = () => {
             </div>
             <div className="bg-purple-500/10 backdrop-blur-lg rounded-2xl p-5 border border-purple-500/30 text-center">
               <div className="text-3xl font-bold text-purple-400 mb-1">{stats.totalReports}</div>
-              <div className="text-purple-200/60 text-sm">Reports Filed</div>
+              <div className="text-purple-200/60 text-sm">Reports filed</div>
             </div>
             <div className="bg-blue-500/10 backdrop-blur-lg rounded-2xl p-5 border border-blue-500/30 text-center">
               <div className="text-3xl font-bold text-blue-400 mb-1">{stats.pendingReports}</div>
@@ -170,7 +199,7 @@ const DashboardPage = () => {
         {/* Quick Actions */}
         <div className="mb-8">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center">
-            <span className="mr-2">⚡</span> Quick Actions
+            <span className="mr-2">⚡</span> Quick actions
           </h2>
           <div className="grid md:grid-cols-3 gap-4">
             <Link
@@ -191,7 +220,7 @@ const DashboardPage = () => {
               <div className="w-14 h-14 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg">
                 <span className="text-2xl">🚨</span>
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Report Site</h3>
+              <h3 className="text-xl font-bold text-white mb-2">Report site</h3>
               <p className="text-blue-200/60">Report a suspicious website</p>
             </Link>
 
@@ -202,7 +231,7 @@ const DashboardPage = () => {
               <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg">
                 <span className="text-2xl">📜</span>
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Scan History</h3>
+              <h3 className="text-xl font-bold text-white mb-2">Scan history</h3>
               <p className="text-blue-200/60">View your previous URL scans</p>
             </Link>
           </div>
@@ -212,10 +241,10 @@ const DashboardPage = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-white flex items-center">
-              <span className="mr-2">🕐</span> Recent Scans
+              <span className="mr-2">🕐</span> Recent scans
             </h2>
             <Link to="/history" className="text-cyan-400 hover:text-cyan-300 text-sm font-medium">
-              View All →
+              View all →
             </Link>
           </div>
           
@@ -279,10 +308,10 @@ const DashboardPage = () => {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-white flex items-center">
-                <span className="mr-2">📢</span> Recent Reports
+                <span className="mr-2">📢</span> Recent reports
               </h2>
               <Link to="/reports" className="text-cyan-400 hover:text-cyan-300 text-sm font-medium">
-                View All →
+                View all →
               </Link>
             </div>
             
@@ -313,21 +342,21 @@ const DashboardPage = () => {
         {(user?.role === 'moderator' || user?.role === 'admin') && modStats && (
           <div className="mb-8">
             <h2 className="text-xl font-bold text-white mb-4 flex items-center">
-              <span className="mr-2">👮</span> Moderator Dashboard
+              <span className="mr-2">👮</span> Moderator dashboard
             </h2>
             
             <div className="grid md:grid-cols-4 gap-4 mb-4">
               <div className="bg-amber-500/10 backdrop-blur-lg rounded-xl p-4 border border-amber-500/30">
                 <div className="text-2xl font-bold text-amber-400 mb-1">{modStats.pending_reports}</div>
-                <div className="text-amber-200/60 text-sm">Pending Review</div>
+                <div className="text-amber-200/60 text-sm">Pending review</div>
               </div>
               <div className="bg-blue-500/10 backdrop-blur-lg rounded-xl p-4 border border-blue-500/30">
                 <div className="text-2xl font-bold text-blue-400 mb-1">{modStats.under_review}</div>
-                <div className="text-blue-200/60 text-sm">Under Review</div>
+                <div className="text-blue-200/60 text-sm">Under review</div>
               </div>
               <div className="bg-purple-500/10 backdrop-blur-lg rounded-xl p-4 border border-purple-500/30">
                 <div className="text-2xl font-bold text-purple-400 mb-1">{modStats.assigned_to_me}</div>
-                <div className="text-purple-200/60 text-sm">Assigned to Me</div>
+                <div className="text-purple-200/60 text-sm">Assigned to me</div>
               </div>
               <div className="bg-red-500/10 backdrop-blur-lg rounded-xl p-4 border border-red-500/30">
                 <div className="text-2xl font-bold text-red-400 mb-1">{modStats.priority_breakdown?.urgent || 0}</div>
@@ -340,7 +369,7 @@ const DashboardPage = () => {
               className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl font-medium hover:from-amber-600 hover:to-orange-700 transition-all shadow-lg hover:shadow-amber-500/25"
             >
               <span className="mr-2">📋</span>
-              Go to Review Queue
+              Go to review queue
             </Link>
           </div>
         )}
@@ -349,7 +378,7 @@ const DashboardPage = () => {
         {user?.role === 'admin' && (
           <div className="mb-8">
             <h2 className="text-xl font-bold text-white mb-4 flex items-center">
-              <span className="mr-2">👑</span> Admin Tools
+              <span className="mr-2">👑</span> Admin tools
             </h2>
             <div className="bg-gradient-to-r from-red-500/10 to-rose-500/10 backdrop-blur-lg rounded-2xl p-6 border border-red-500/30">
               <div className="flex flex-wrap gap-4">
@@ -358,21 +387,21 @@ const DashboardPage = () => {
                   className="flex items-center px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl font-medium hover:from-red-600 hover:to-rose-700 transition-all shadow-lg hover:shadow-red-500/25"
                 >
                   <span className="mr-2">👥</span>
-                  Manage Users
+                  Manage users
                 </Link>
                 <Link
                   to="/admin/stats"
                   className="flex items-center px-6 py-3 bg-white/10 border border-red-500/30 text-red-200 rounded-xl font-medium hover:bg-white/20 transition-all"
                 >
                   <span className="mr-2">📈</span>
-                  System Statistics
+                  System statistics
                 </Link>
                 <Link
                   to="/admin/logs"
                   className="flex items-center px-6 py-3 bg-white/10 border border-red-500/30 text-red-200 rounded-xl font-medium hover:bg-white/20 transition-all"
                 >
                   <span className="mr-2">📝</span>
-                  Activity Logs
+                  Activity logs
                 </Link>
               </div>
             </div>
@@ -382,12 +411,12 @@ const DashboardPage = () => {
         {/* Account Information */}
         <div>
           <h2 className="text-xl font-bold text-white mb-4 flex items-center">
-            <span className="mr-2">👤</span> Account Information
+            <span className="mr-2">👤</span> Account information
           </h2>
           <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10">
             <div className="grid md:grid-cols-2 gap-4">
               <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                <span className="text-blue-200/70">Full Name</span>
+                <span className="text-blue-200/70">Full name</span>
                 <span className="text-white font-medium">{user?.full_name}</span>
               </div>
               <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">

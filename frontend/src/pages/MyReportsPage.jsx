@@ -129,7 +129,7 @@ const MyReportsPage = () => {
           <div>
             <h1 className="text-3xl font-bold text-white mb-2 flex items-center">
               <span className="mr-3">📢</span>
-              My Reports
+              My reports
             </h1>
             <p className="text-blue-200/70">Track the status of your submitted reports</p>
           </div>
@@ -138,7 +138,7 @@ const MyReportsPage = () => {
             className="mt-4 md:mt-0 inline-flex items-center px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white rounded-xl font-medium transition-all shadow-lg hover:shadow-red-500/25"
           >
             <span className="mr-2">🚨</span>
-            Report New Site
+            Report new site
           </Link>
         </div>
 
@@ -146,7 +146,7 @@ const MyReportsPage = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white/5 backdrop-blur-lg rounded-xl p-4 border border-white/10 text-center">
             <div className="text-2xl font-bold text-white mb-1">{reports.length}</div>
-            <div className="text-blue-200/60 text-sm">Total Reports</div>
+            <div className="text-blue-200/60 text-sm">Total reports</div>
           </div>
           <div className="bg-white/5 backdrop-blur-lg rounded-xl p-4 border border-white/10 text-center">
             <div className="text-2xl font-bold text-amber-400 mb-1">
@@ -184,7 +184,7 @@ const MyReportsPage = () => {
             <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
               <span className="text-4xl">📝</span>
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">No Reports Yet</h3>
+            <h3 className="text-xl font-bold text-white mb-2">No reports yet</h3>
             <p className="text-blue-200/60 mb-6">
               You haven't submitted any reports yet. Help protect the community by reporting suspicious websites.
             </p>
@@ -193,7 +193,7 @@ const MyReportsPage = () => {
               className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl font-medium transition-all shadow-lg"
             >
               <span className="mr-2">🚨</span>
-              Report Your First Site
+              Report your first site
             </Link>
           </div>
         ) : (
@@ -247,7 +247,7 @@ const MyReportsPage = () => {
                         onClick={() => toggleReportDetails(report.report_id)}
                         className="px-4 py-2 bg-white/10 hover:bg-white/20 text-blue-200 rounded-xl font-medium text-sm transition-all flex items-center"
                       >
-                        {isExpanded ? 'Hide Details' : 'View Details'}
+                        {isExpanded ? 'Hide details' : 'View details'}
                         <svg 
                           className={`w-4 h-4 ml-1 transition-transform ${isExpanded ? 'rotate-90' : ''}`} 
                           fill="none" 
@@ -280,7 +280,7 @@ const MyReportsPage = () => {
                             <div>
                               <h4 className="text-white font-semibold mb-3 flex items-center">
                                 <span className="mr-2">📋</span>
-                                Report Details
+                                Report details
                               </h4>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="bg-white/5 rounded-lg p-4">
@@ -291,13 +291,13 @@ const MyReportsPage = () => {
                                 </div>
                                 {details?.review_notes && (
                                   <div className="bg-white/5 rounded-lg p-4">
-                                    <div className="text-blue-200/60 text-xs mb-1">Moderator Notes</div>
+                                    <div className="text-blue-200/60 text-xs mb-1">Moderator notes</div>
                                     <div className="text-white text-sm">{details.review_notes}</div>
                                   </div>
                                 )}
                                 {details?.reviewed_at && (
                                   <div className="bg-white/5 rounded-lg p-4">
-                                    <div className="text-blue-200/60 text-xs mb-1">Reviewed At</div>
+                                    <div className="text-blue-200/60 text-xs mb-1">Reviewed at</div>
                                     <div className="text-white text-sm">
                                       {new Date(details.reviewed_at).toLocaleString()}
                                     </div>
@@ -346,7 +346,7 @@ const MyReportsPage = () => {
                             <div>
                               <h4 className="text-white font-semibold mb-3 flex items-center">
                                 <span className="mr-2">💬</span>
-                                Community Feedback
+                                Community feedback
                                 {details?.feedback?.length > 0 && (
                                   <span className="ml-2 px-2 py-0.5 bg-cyan-500/20 text-cyan-400 text-xs rounded-full">
                                     {details.feedback.length}

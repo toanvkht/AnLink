@@ -1,8 +1,17 @@
+/**
+ * LoginForm Component
+ * 
+ * User login form with email and password fields.
+ * Handles authentication and redirects to dashboard on success.
+ * 
+ * @component
+ */
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const LoginForm = () => {
+  // State management
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -13,6 +22,10 @@ const LoginForm = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  /**
+   * Handles input field changes
+   * @param {Event} e - Input change event
+   */
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -21,6 +34,10 @@ const LoginForm = () => {
     if (error) setError('');
   };
 
+  /**
+   * Handles form submission and user login
+   * @param {Event} e - Form submit event
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -55,7 +72,7 @@ const LoginForm = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 mb-4">
             <span className="text-3xl">🔐</span>
           </div>
-          <h2 className="text-3xl font-bold text-white mb-2">Welcome Back</h2>
+          <h2 className="text-3xl font-bold text-white mb-2">Welcome back</h2>
           <p className="text-blue-200/70">Login to your AnLink account</p>
         </div>
 
@@ -73,7 +90,7 @@ const LoginForm = () => {
           {/* Email Field */}
           <div className="mb-5">
             <label htmlFor="email" className="block text-blue-100 font-medium mb-2 text-sm">
-              Email Address
+              Email address
             </label>
             <input
               type="email"

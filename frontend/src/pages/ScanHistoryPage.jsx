@@ -109,7 +109,7 @@ const ScanHistoryPage = () => {
         <div>
           <h4 className="text-white font-semibold mb-3 flex items-center">
             <span className="mr-2">🌐</span>
-            Domain & URL Information
+                            Domain & URL information
           </h4>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-white/5 rounded-lg p-3">
@@ -132,7 +132,7 @@ const ScanHistoryPage = () => {
             </div>
             {urlInfo.is_ip && (
               <div className="bg-red-500/10 rounded-lg p-3 border border-red-500/30">
-                <div className="text-red-300 text-xs mb-1">⚠️ IP Address</div>
+                <div className="text-red-300 text-xs mb-1">⚠️ IP address</div>
                 <div className="text-red-400 font-mono text-sm">{urlInfo.domain}</div>
               </div>
             )}
@@ -144,7 +144,7 @@ const ScanHistoryPage = () => {
             )}
             {(urlInfo.query || details.check?.query_params) && (
               <div className="bg-white/5 rounded-lg p-3 col-span-2">
-                <div className="text-blue-200/60 text-xs mb-1">Query Parameters</div>
+                <div className="text-blue-200/60 text-xs mb-1">Query parameters</div>
                 <div className="text-white font-mono text-sm truncate">{urlInfo.query || details.check?.query_params}</div>
               </div>
             )}
@@ -156,7 +156,7 @@ const ScanHistoryPage = () => {
           <div>
             <h4 className="text-white font-semibold mb-3 flex items-center">
               <span className="mr-2">📊</span>
-              Component Analysis
+              Component analysis
             </h4>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               {Object.entries(componentDetails).map(([key, data]) => {
@@ -201,7 +201,7 @@ const ScanHistoryPage = () => {
           <div>
             <h4 className="text-white font-semibold mb-3 flex items-center">
               <span className="mr-2">🚩</span>
-              Detected Patterns
+              Detected patterns
             </h4>
             <div className="space-y-2">
               {Object.entries(componentDetails).map(([comp, data]) => {
@@ -237,7 +237,7 @@ const ScanHistoryPage = () => {
           <div>
             <h4 className="text-white font-semibold mb-3 flex items-center">
               <span className="mr-2">🧮</span>
-              Score Calculation
+              Score calculation
             </h4>
             <div className="bg-white/5 rounded-lg p-4">
               <div className="space-y-2">
@@ -255,7 +255,7 @@ const ScanHistoryPage = () => {
                   </div>
                 ))}
                 <div className="border-t border-white/10 pt-2 mt-2 flex justify-between font-bold">
-                  <span className="text-white">Total Risk Score</span>
+                  <span className="text-white">Total risk score</span>
                   <span className={getScoreColor(details.score || 0)}>
                     {((details.score || 0) * 100).toFixed(1)}%
                   </span>
@@ -267,11 +267,11 @@ const ScanHistoryPage = () => {
           <div>
             <h4 className="text-white font-semibold mb-3 flex items-center">
               <span className="mr-2">🧮</span>
-              Score Calculation
+              Score calculation
             </h4>
             <div className="bg-white/5 rounded-lg p-4">
               <div className="flex justify-between font-bold">
-                <span className="text-white">Total Risk Score</span>
+                <span className="text-white">Total risk score</span>
                 <span className={getScoreColor(details.score || details.check?.algorithm_score || 0)}>
                   {((details.score || details.check?.algorithm_score || 0) * 100).toFixed(1)}%
                 </span>
@@ -303,7 +303,7 @@ const ScanHistoryPage = () => {
             <div>
               <h1 className="text-3xl font-bold text-white mb-2 flex items-center">
                 <span className="mr-3">📜</span>
-                Scan History
+                Scan history
               </h1>
               <p className="text-blue-200/70">View all your previous URL checks</p>
             </div>
@@ -312,7 +312,7 @@ const ScanHistoryPage = () => {
               className="mt-4 md:mt-0 inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white rounded-xl font-medium transition-all shadow-lg hover:shadow-cyan-500/25"
             >
               <span className="mr-2">🔍</span>
-              New Scan
+              New scan
             </Link>
           </div>
         </div>
@@ -389,7 +389,7 @@ const ScanHistoryPage = () => {
               to="/check"
               className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-medium hover:from-blue-600 hover:to-cyan-600 transition-all shadow-lg"
             >
-              Check Your First URL
+              Check your first URL
             </Link>
           </div>
         ) : (
@@ -432,7 +432,7 @@ const ScanHistoryPage = () => {
                           <div className={`text-2xl font-bold ${getScoreColor(scan.algorithm_score)}`}>
                             {(scan.algorithm_score * 100).toFixed(0)}%
                           </div>
-                          <div className="text-blue-200/50 text-xs">Risk Score</div>
+                          <div className="text-blue-200/50 text-xs">Risk score</div>
                         </div>
                         <button
                           onClick={() => fetchScanDetails(scan.check_id)}

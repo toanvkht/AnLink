@@ -25,9 +25,9 @@ const HomePage = () => {
             </div>
 
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-              Stay Safe from{' '}
+              Stay safe from{' '}
               <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                Phishing Attacks
+                Phishing attacks
               </span>
             </h1>
             
@@ -43,7 +43,7 @@ const HomePage = () => {
               >
                 <span className="flex items-center justify-center">
                   <span className="mr-2">🔍</span>
-                  Check URL Now
+                  Check URL now
                   <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
@@ -54,7 +54,7 @@ const HomePage = () => {
                   to="/register"
                   className="bg-white/10 backdrop-blur-lg border border-white/20 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/20 transition-all"
                 >
-                  Get Started Free
+                  Get started free
                 </Link>
               )}
             </div>
@@ -83,7 +83,7 @@ const HomePage = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              How AnLink Protects You
+              How AnLink protects you
             </h2>
             <p className="text-blue-200/70 max-w-2xl mx-auto">
               Our multi-layered approach ensures comprehensive protection against phishing threats
@@ -96,7 +96,7 @@ const HomePage = () => {
               <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <span className="text-2xl">🔍</span>
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">Real-Time Analysis</h3>
+              <h3 className="text-xl font-bold text-white mb-3">Real-time analysis</h3>
               <p className="text-blue-200/70 leading-relaxed">
                 Our advanced algorithm analyzes URL components, domain similarity, and suspicious
                 patterns to detect phishing attempts instantly.
@@ -108,7 +108,7 @@ const HomePage = () => {
               <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <span className="text-2xl">👥</span>
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">Community Reporting</h3>
+              <h3 className="text-xl font-bold text-white mb-3">Community reporting</h3>
               <p className="text-blue-200/70 leading-relaxed">
                 Report suspicious websites and help protect others. Our community of users and
                 moderators work together to identify new threats.
@@ -120,7 +120,7 @@ const HomePage = () => {
               <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <span className="text-2xl">📚</span>
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">Educational Resources</h3>
+              <h3 className="text-xl font-bold text-white mb-3">Educational resources</h3>
               <p className="text-blue-200/70 leading-relaxed">
                 Learn how to recognize phishing attempts with our localized Vietnamese-language
                 guides and interactive security awareness content.
@@ -137,15 +137,15 @@ const HomePage = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               <div className="p-4">
                 <div className="text-4xl md:text-5xl font-bold text-white mb-2">10K+</div>
-                <div className="text-blue-200/70">URLs Scanned</div>
+                <div className="text-blue-200/70">URLs scanned</div>
               </div>
               <div className="p-4">
                 <div className="text-4xl md:text-5xl font-bold text-white mb-2">500+</div>
-                <div className="text-blue-200/70">Threats Blocked</div>
+                <div className="text-blue-200/70">Threats blocked</div>
               </div>
               <div className="p-4">
                 <div className="text-4xl md:text-5xl font-bold text-white mb-2">1K+</div>
-                <div className="text-blue-200/70">Active Users</div>
+                <div className="text-blue-200/70">Active users</div>
               </div>
               <div className="p-4">
                 <div className="text-4xl md:text-5xl font-bold text-white mb-2">24/7</div>
@@ -161,7 +161,7 @@ const HomePage = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              How It Works
+              How it works
             </h2>
             <p className="text-blue-200/70 max-w-2xl mx-auto">
               Three simple steps to protect yourself from phishing
@@ -191,7 +191,7 @@ const HomePage = () => {
               <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl border-2 border-cyan-500">
                 3
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">Get Results</h3>
+              <h3 className="text-xl font-bold text-white mb-3">Get results</h3>
               <p className="text-blue-200/70">
                 Receive instant feedback with detailed risk assessment
               </p>
@@ -205,7 +205,7 @@ const HomePage = () => {
         <div className="container mx-auto px-4 text-center">
           <div className="bg-gradient-to-br from-blue-600/30 to-cyan-600/30 backdrop-blur-lg rounded-3xl p-12 md:p-16 border border-white/10 max-w-4xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Ready to Stay Safe Online?
+              Ready to stay safe online?
             </h2>
             <p className="text-xl text-blue-200/80 mb-8">
               Join thousands of users protecting themselves from phishing attacks.
@@ -217,12 +217,12 @@ const HomePage = () => {
               {isAuthenticated ? (
                 <>
                   <span className="mr-2">🔍</span>
-                  Check URL Now
+                  Check URL now
                 </>
               ) : (
                 <>
                   <span className="mr-2">🚀</span>
-                  Create Free Account
+                  Create free account
                 </>
               )}
             </Link>

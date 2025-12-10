@@ -1,9 +1,21 @@
+/**
+ * AdminUsersPage Component
+ * 
+ * Admin interface for managing system users. Allows admins to:
+ * - View all users with filtering by role and status
+ * - Edit user roles and statuses
+ * - Suspend user accounts
+ * 
+ * @component
+ */
 import React, { useState, useEffect } from 'react';
 import { adminAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 const AdminUsersPage = () => {
   const { user: currentUser } = useAuth();
+  
+  // State management
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -23,10 +35,14 @@ const AdminUsersPage = () => {
     status: ''
   });
 
+  // Fetch users when filters or pagination changes
   useEffect(() => {
     fetchUsers();
   }, [filters, pagination.offset]);
 
+  /**
+   * Fetches users from the API with current filters and pagination
+   */
   const fetchUsers = async () => {
     try {
       setLoading(true);
@@ -47,11 +63,20 @@ const AdminUsersPage = () => {
     }
   };
 
+  /**
+   * Handles filter changes and resets pagination
+   * @param {string} field - Filter field name
+   * @param {string} value - Filter value
+   */
   const handleFilterChange = (field, value) => {
     setFilters(prev => ({ ...prev, [field]: value }));
     setPagination(prev => ({ ...prev, offset: 0 }));
   };
 
+  /**
+   * Opens edit modal for a user
+   * @param {Object} user - User object to edit
+   */
   const handleEdit = (user) => {
     setEditingUser(user);
     setEditForm({
@@ -60,6 +85,9 @@ const AdminUsersPage = () => {
     });
   };
 
+  /**
+   * Updates user role and/or status
+   */
   const handleUpdateUser = async () => {
     try {
       await adminAPI.updateUser(editingUser.user_id, editForm);
@@ -72,6 +100,11 @@ const AdminUsersPage = () => {
     }
   };
 
+  /**
+   * Suspends a user account (soft delete)
+   * @param {string} userId - User ID to suspend
+   * @param {string} email - User email for confirmation message
+   */
   const handleDeleteUser = async (userId, email) => {
     if (!window.confirm(`Are you sure you want to suspend user "${email}"?`)) {
       return;
@@ -86,6 +119,11 @@ const AdminUsersPage = () => {
     }
   };
 
+  /**
+   * Returns badge styling based on user role
+   * @param {string} role - User role
+   * @returns {string} Tailwind CSS classes
+   */
   const getRoleBadge = (role) => {
     const styles = {
       admin: 'bg-red-500/20 text-red-400 border-red-500/30',
@@ -95,6 +133,11 @@ const AdminUsersPage = () => {
     return styles[role] || styles.community_user;
   };
 
+  /**
+   * Returns badge styling based on user status
+   * @param {string} status - User status
+   * @returns {string} Tailwind CSS classes
+   */
   const getStatusBadge = (status) => {
     const styles = {
       active: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
@@ -111,7 +154,7 @@ const AdminUsersPage = () => {
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2 flex items-center">
             <span className="mr-3">👥</span>
-            Manage Users
+            Manage users
           </h1>
           <p className="text-blue-200/70">View and manage all system users</p>
         </div>
@@ -120,7 +163,7 @@ const AdminUsersPage = () => {
         <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 mb-6 border border-white/10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-blue-100 text-sm font-medium mb-2">Filter by Role</label>
+              <label className="block text-blue-100 text-sm font-medium mb-2">Filter by role</label>
               <select
                 value={filters.role}
                 onChange={(e) => handleFilterChange('role', e.target.value)}
@@ -136,11 +179,11 @@ const AdminUsersPage = () => {
                 <option value="" className="bg-slate-800 text-white">All Roles</option>
                 <option value="admin" className="bg-slate-800 text-white">Admin</option>
                 <option value="moderator" className="bg-slate-800 text-white">Moderator</option>
-                <option value="community_user" className="bg-slate-800 text-white">Community User</option>
+                <option value="community_user" className="bg-slate-800 text-white">Community user</option>
               </select>
             </div>
             <div>
-              <label className="block text-blue-100 text-sm font-medium mb-2">Filter by Status</label>
+              <label className="block text-blue-100 text-sm font-medium mb-2">Filter by status</label>
               <select
                 value={filters.status}
                 onChange={(e) => handleFilterChange('status', e.target.value)}
@@ -153,7 +196,7 @@ const AdminUsersPage = () => {
                   paddingRight: '2.5rem'
                 }}
               >
-                <option value="" className="bg-slate-800 text-white">All Statuses</option>
+                <option value="" className="bg-slate-800 text-white">All statuses</option>
                 <option value="active" className="bg-slate-800 text-white">Active</option>
                 <option value="suspended" className="bg-slate-800 text-white">Suspended</option>
                 <option value="pending" className="bg-slate-800 text-white">Pending</option>
@@ -167,7 +210,7 @@ const AdminUsersPage = () => {
                 }}
                 className="w-full px-4 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white transition-all"
               >
-                Clear Filters
+                Clear filters
               </button>
             </div>
           </div>
@@ -203,7 +246,7 @@ const AdminUsersPage = () => {
                     <th className="text-left py-4 px-6 text-blue-200/70 font-medium text-sm">Role</th>
                     <th className="text-left py-4 px-6 text-blue-200/70 font-medium text-sm">Status</th>
                     <th className="text-left py-4 px-6 text-blue-200/70 font-medium text-sm">Created</th>
-                    <th className="text-left py-4 px-6 text-blue-200/70 font-medium text-sm">Last Login</th>
+                    <th className="text-left py-4 px-6 text-blue-200/70 font-medium text-sm">Last login</th>
                     <th className="text-left py-4 px-6 text-blue-200/70 font-medium text-sm">Actions</th>
                   </tr>
                 </thead>
@@ -287,7 +330,7 @@ const AdminUsersPage = () => {
         {editingUser && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-slate-800 rounded-2xl p-6 max-w-md w-full border border-white/20">
-              <h2 className="text-2xl font-bold text-white mb-4">Edit User</h2>
+              <h2 className="text-2xl font-bold text-white mb-4">Edit user</h2>
               <div className="mb-4">
                 <p className="text-blue-200/70 text-sm mb-1">Email</p>
                 <p className="text-white font-medium">{editingUser.email}</p>
@@ -299,7 +342,7 @@ const AdminUsersPage = () => {
                   onChange={(e) => setEditForm(prev => ({ ...prev, role: e.target.value }))}
                   className="w-full px-4 py-3 bg-slate-700 border border-white/20 rounded-xl text-white focus:outline-none focus:border-cyan-400"
                 >
-                  <option value="community_user">Community User</option>
+                  <option value="community_user">Community user</option>
                   <option value="moderator">Moderator</option>
                   <option value="admin">Admin</option>
                 </select>
@@ -321,7 +364,7 @@ const AdminUsersPage = () => {
                   onClick={handleUpdateUser}
                   className="flex-1 px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-xl font-medium transition-all"
                 >
-                  Save Changes
+                  Save changes
                 </button>
                 <button
                   onClick={() => setEditingUser(null)}

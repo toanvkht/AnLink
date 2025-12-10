@@ -1,3 +1,12 @@
+/**
+ * EducationPage Component
+ * 
+ * Main education hub displaying educational materials.
+ * Allows filtering by content type, difficulty level, and language.
+ * Filters out content with invalid slugs to prevent navigation errors.
+ * 
+ * @component
+ */
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { educationAPI } from '../services/api';
@@ -5,6 +14,8 @@ import { useAuth } from '../context/AuthContext';
 
 const EducationPage = () => {
   const { isAuthenticated, user } = useAuth();
+  
+  // State management
   const [content, setContent] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -14,10 +25,14 @@ const EducationPage = () => {
     language: 'vi'
   });
 
+  // Fetch content when filters change
   useEffect(() => {
     fetchContent();
   }, [filter]);
 
+  /**
+   * Fetches education content from the API with current filters
+   */
   const fetchContent = async () => {
     try {
       setLoading(true);
@@ -46,6 +61,11 @@ const EducationPage = () => {
     }
   };
 
+  /**
+   * Returns emoji icon for content type
+   * @param {string} type - Content type
+   * @returns {string} Emoji icon
+   */
   const getContentTypeIcon = (type) => {
     switch (type) {
       case 'article': return '📄';
@@ -56,6 +76,11 @@ const EducationPage = () => {
     }
   };
 
+  /**
+   * Returns human-readable label for content type
+   * @param {string} type - Content type
+   * @returns {string} Content type label
+   */
   const getContentTypeLabel = (type) => {
     const labels = {
       article: 'Article',
@@ -66,6 +91,11 @@ const EducationPage = () => {
     return labels[type] || type;
   };
 
+  /**
+   * Returns human-readable label for difficulty level
+   * @param {string} level - Difficulty level
+   * @returns {string} Difficulty label
+   */
   const getDifficultyLabel = (level) => {
     const labels = {
       beginner: 'Beginner',
@@ -75,6 +105,11 @@ const EducationPage = () => {
     return labels[level] || level;
   };
 
+  /**
+   * Returns Tailwind CSS classes for difficulty level badge
+   * @param {string} level - Difficulty level
+   * @returns {string} Tailwind CSS classes
+   */
   const getDifficultyColor = (level) => {
     switch (level) {
       case 'beginner': return 'bg-emerald-500/20 text-emerald-400';
@@ -104,7 +139,7 @@ const EducationPage = () => {
             <span className="text-5xl">📚</span>
           </div>
           <h1 className="text-5xl font-bold text-white mb-4">
-            Education Materials
+            Education materials
           </h1>
           <p className="text-xl text-blue-200/70 max-w-2xl mx-auto">
             Learn how to identify and prevent online phishing scams. Educational materials with real examples and easy-to-understand illustrations.
@@ -116,7 +151,7 @@ const EducationPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-blue-100 text-sm font-medium mb-2">
-                Content Type
+                Content type
               </label>
               <select
                 value={filter.content_type}
@@ -139,7 +174,7 @@ const EducationPage = () => {
             </div>
             <div>
               <label className="block text-blue-100 text-sm font-medium mb-2">
-                Difficulty Level
+                Difficulty level
               </label>
               <select
                 value={filter.difficulty_level}
@@ -219,7 +254,7 @@ const EducationPage = () => {
                 <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
                   <span className="text-4xl">⚠️</span>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">Invalid Content Slugs</h3>
+                <h3 className="text-xl font-bold text-white mb-2">Invalid content slugs</h3>
                 <p className="text-blue-200/60 mb-4">
                   Some content has invalid slugs (URLs instead of slugs). Please fix them in the admin panel.
                 </p>

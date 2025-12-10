@@ -24,7 +24,7 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Quick Links</h3>
+            <h3 className="text-white font-semibold mb-4">Quick links</h3>
             <ul className="space-y-3 text-sm">
               <li>
                 <Link to="/" className="text-blue-200/70 hover:text-cyan-400 transition flex items-center">
@@ -43,7 +43,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link to="/reports" className="text-blue-200/70 hover:text-cyan-400 transition flex items-center">
-                  <span className="mr-2">→</span> Report Phishing
+                  <span className="mr-2">→</span> Report phishing
                 </Link>
               </li>
             </ul>
@@ -57,13 +57,13 @@ const Footer = () => {
                 <span className="mr-2">🔍</span> Real-time URL Analysis
               </li>
               <li className="text-blue-200/70 flex items-center">
-                <span className="mr-2">🎯</span> Pattern Detection
+                <span className="mr-2">🎯</span> Pattern detection
               </li>
               <li className="text-blue-200/70 flex items-center">
-                <span className="mr-2">👥</span> Community Reports
+                <span className="mr-2">👥</span> Community reports
               </li>
               <li className="text-blue-200/70 flex items-center">
-                <span className="mr-2">📚</span> Security Education
+                <span className="mr-2">📚</span> Security education
               </li>
             </ul>
           </div>
@@ -102,7 +102,7 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-center text-sm text-blue-200/50">
             <p>&copy; {currentYear} AnLink. All rights reserved.</p>
             <p className="mt-2 md:mt-0">
-              COMP1682 Final Year Project • Anti-Phishing System
+              COMP1682 Final year project • Anti-phishing system
             </p>
           </div>
         </div>

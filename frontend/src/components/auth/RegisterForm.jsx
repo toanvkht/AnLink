@@ -72,7 +72,7 @@ const RegisterForm = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 mb-4">
             <span className="text-3xl">🚀</span>
           </div>
-          <h2 className="text-3xl font-bold text-white mb-2">Create Account</h2>
+          <h2 className="text-3xl font-bold text-white mb-2">Create account</h2>
           <p className="text-blue-200/70">Join AnLink to protect yourself online</p>
         </div>
 
@@ -90,7 +90,7 @@ const RegisterForm = () => {
           {/* Full Name */}
           <div className="mb-4">
             <label htmlFor="full_name" className="block text-blue-100 font-medium mb-2 text-sm">
-              Full Name <span className="text-red-400">*</span>
+              Full name <span className="text-red-400">*</span>
             </label>
             <input
               type="text"
@@ -124,7 +124,7 @@ const RegisterForm = () => {
           {/* Phone Number (Optional) */}
           <div className="mb-4">
             <label htmlFor="phone_number" className="block text-blue-100 font-medium mb-2 text-sm">
-              Phone Number <span className="text-blue-200/50">(Optional)</span>
+              Phone number <span className="text-blue-200/50">(Optional)</span>
             </label>
             <input
               type="tel"
@@ -158,7 +158,7 @@ const RegisterForm = () => {
           {/* Confirm Password */}
           <div className="mb-6">
             <label htmlFor="confirmPassword" className="block text-blue-100 font-medium mb-2 text-sm">
-              Confirm Password <span className="text-red-400">*</span>
+              Confirm password <span className="text-red-400">*</span>
             </label>
             <input
               type="password"
@@ -188,10 +188,10 @@ const RegisterForm = () => {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Creating Account...
+                Creating account...
               </span>
             ) : (
-              'Create Account'
+              'Create account'
             )}
           </button>
         </form>

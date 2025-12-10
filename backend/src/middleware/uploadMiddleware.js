@@ -1,8 +1,12 @@
 /**
  * File Upload Middleware
- * AnLink Anti-Phishing System
+ * 
+ * Handles file uploads for education content media files.
+ * Supports images, videos, and PDFs with a 10MB size limit.
+ * Files are stored in backend/uploads/education/ with unique filenames.
+ * 
+ * @module middleware/uploadMiddleware
  */
-
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -13,7 +17,10 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Configure storage
+/**
+ * Configure multer disk storage
+ * Generates unique filenames to prevent conflicts
+ */
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, uploadsDir);
@@ -27,7 +34,12 @@ const storage = multer.diskStorage({
   }
 });
 
-// File filter - only allow images, videos, PDFs
+/**
+ * File filter - only allow images, videos, PDFs
+ * @param {Object} req - Express request object
+ * @param {Object} file - Uploaded file object
+ * @param {Function} cb - Callback function
+ */
 const fileFilter = (req, file, cb) => {
   const allowedMimes = [
     'image/jpeg',
@@ -47,7 +59,9 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Configure multer
+/**
+ * Configure multer with storage, limits, and file filter
+ */
 const upload = multer({
   storage: storage,
   limits: {

@@ -1,15 +1,32 @@
+/**
+ * AdminStatsPage Component
+ * 
+ * Displays comprehensive system statistics including:
+ * - User statistics by role
+ * - URL scan statistics and results
+ * - Report statistics by status
+ * - Phishing database information
+ * - Recent activity charts
+ * 
+ * @component
+ */
 import React, { useState, useEffect } from 'react';
 import { adminAPI } from '../services/api';
 
 const AdminStatsPage = () => {
+  // State management
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Fetch statistics on component mount
   useEffect(() => {
     fetchStats();
   }, []);
 
+  /**
+   * Fetches system statistics from the API
+   */
   const fetchStats = async () => {
     try {
       setLoading(true);
@@ -52,7 +69,7 @@ const AdminStatsPage = () => {
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2 flex items-center">
             <span className="mr-3">📈</span>
-            System Statistics
+            System statistics
           </h1>
           <p className="text-blue-200/70">Overview of system performance and usage</p>
         </div>
@@ -68,7 +85,7 @@ const AdminStatsPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10">
                   <div className="text-3xl font-bold text-white mb-2">{stats.users.total}</div>
-                  <div className="text-blue-200/60 text-sm">Total Users</div>
+                  <div className="text-blue-200/60 text-sm">Total users</div>
                 </div>
                 <div className="bg-red-500/10 backdrop-blur-lg rounded-2xl p-6 border border-red-500/30">
                   <div className="text-3xl font-bold text-red-400 mb-2">{stats.users.by_role.admin || 0}</div>
@@ -82,7 +99,7 @@ const AdminStatsPage = () => {
                   <div className="text-3xl font-bold text-blue-400 mb-2">
                     {stats.users.by_role.community_user || 0}
                   </div>
-                  <div className="text-blue-200/60 text-sm">Community Users</div>
+                  <div className="text-blue-200/60 text-sm">Community users</div>
                 </div>
               </div>
             </div>
@@ -91,7 +108,7 @@ const AdminStatsPage = () => {
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
                 <span className="mr-2">🔍</span>
-                URL Scans
+                URL scans
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10">
@@ -118,7 +135,7 @@ const AdminStatsPage = () => {
               {stats.scans.avg_response_time_ms > 0 && (
                 <div className="mt-4 bg-white/5 backdrop-blur-lg rounded-2xl p-4 border border-white/10">
                   <div className="flex items-center justify-between">
-                    <span className="text-blue-200/70">Average Response Time</span>
+                    <span className="text-blue-200/70">Average response time</span>
                     <span className="text-white font-medium">{stats.scans.avg_response_time_ms}ms</span>
                   </div>
                 </div>
@@ -134,7 +151,7 @@ const AdminStatsPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                 <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10">
                   <div className="text-3xl font-bold text-white mb-2">{stats.reports.total.toLocaleString()}</div>
-                  <div className="text-blue-200/60 text-sm">Total Reports</div>
+                  <div className="text-blue-200/60 text-sm">Total reports</div>
                 </div>
                 <div className="bg-amber-500/10 backdrop-blur-lg rounded-2xl p-6 border border-amber-500/30">
                   <div className="text-3xl font-bold text-amber-400 mb-2">{stats.reports.by_status.pending.toLocaleString()}</div>
@@ -142,7 +159,7 @@ const AdminStatsPage = () => {
                 </div>
                 <div className="bg-blue-500/10 backdrop-blur-lg rounded-2xl p-6 border border-blue-500/30">
                   <div className="text-3xl font-bold text-blue-400 mb-2">{stats.reports.by_status.under_review.toLocaleString()}</div>
-                  <div className="text-blue-200/60 text-sm">Under Review</div>
+                  <div className="text-blue-200/60 text-sm">Under review</div>
                 </div>
                 <div className="bg-emerald-500/10 backdrop-blur-lg rounded-2xl p-6 border border-emerald-500/30">
                   <div className="text-3xl font-bold text-emerald-400 mb-2">{stats.reports.by_status.confirmed.toLocaleString()}</div>
@@ -163,16 +180,16 @@ const AdminStatsPage = () => {
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
                 <span className="mr-2">🛡️</span>
-                Phishing Database
+                Phishing database
               </h2>
               <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10">
                 <div className="mb-4">
                   <div className="text-3xl font-bold text-white mb-2">{stats.phishing.known_urls.toLocaleString()}</div>
-                  <div className="text-blue-200/60 text-sm">Known Phishing URLs</div>
+                  <div className="text-blue-200/60 text-sm">Known phishing URLs</div>
                 </div>
                 {stats.phishing.top_brands && stats.phishing.top_brands.length > 0 && (
                   <div className="mt-6">
-                    <h3 className="text-lg font-bold text-white mb-3">Top Targeted Brands</h3>
+                    <h3 className="text-lg font-bold text-white mb-3">Top targeted brands</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
                       {stats.phishing.top_brands.map((brand, idx) => (
                         <div key={idx} className="bg-white/5 rounded-xl p-4 border border-white/10">
@@ -191,7 +208,7 @@ const AdminStatsPage = () => {
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
                   <span className="mr-2">📊</span>
-                  Recent Activity (Last 7 Days)
+                  Recent activity (last 7 days)
                 </h2>
                 <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10">
                   <div className="space-y-3">

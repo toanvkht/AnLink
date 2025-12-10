@@ -93,13 +93,13 @@ const EducationDetailPage = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
         <div className="text-center bg-white/10 backdrop-blur-lg rounded-2xl p-12 border border-white/20 max-w-md mx-4">
           <span className="text-5xl mb-4 block">😕</span>
-          <h1 className="text-2xl font-bold text-white mb-4">Content Not Found</h1>
+          <h1 className="text-2xl font-bold text-white mb-4">Content not found</h1>
           <p className="text-blue-200/70 mb-6">{error || 'This content does not exist'}</p>
           <Link
             to="/education"
             className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-medium hover:from-blue-600 hover:to-cyan-600 transition-all"
           >
-            Back to Education
+            Back to education
           </Link>
         </div>
       </div>
@@ -204,12 +204,12 @@ const EducationDetailPage = () => {
 
         {/* Related Content */}
         <div className="mt-12">
-          <h2 className="text-2xl font-bold text-white mb-6">Related Content</h2>
+          <h2 className="text-2xl font-bold text-white mb-6">Related content</h2>
           <Link
             to="/education"
             className="inline-flex items-center px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-medium transition-all"
           >
-            View All Materials
+            View all materials
             <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>

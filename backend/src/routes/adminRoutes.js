@@ -1,3 +1,15 @@
+/**
+ * Admin Routes
+ * 
+ * Defines all admin-related API endpoints including:
+ * - System statistics
+ * - User management
+ * - Activity logs
+ * 
+ * All routes require admin authentication.
+ * 
+ * @module routes/adminRoutes
+ */
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');

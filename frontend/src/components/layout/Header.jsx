@@ -1,3 +1,12 @@
+/**
+ * Header Component
+ * 
+ * Main navigation header with responsive design.
+ * Shows different navigation items based on user authentication and role.
+ * Includes mobile menu toggle for smaller screens.
+ * 
+ * @component
+ */
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -7,6 +16,9 @@ const Header = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  /**
+   * Handles user logout and redirects to login page
+   */
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -73,7 +85,7 @@ const Header = () => {
                     to="/admin/education" 
                     className="px-2.5 py-2 rounded-lg text-purple-300 hover:text-purple-200 hover:bg-purple-500/10 transition-all whitespace-nowrap text-sm"
                   >
-                    Manage Content
+                    Manage content
                   </Link>
                 )}
                 <Link 
@@ -125,7 +137,7 @@ const Header = () => {
                   to="/register"
                   className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-5 py-2 rounded-xl font-medium transition-all shadow-lg hover:shadow-cyan-500/25"
                 >
-                  Get Started
+                  Get started
                 </Link>
               </>
             )}
@@ -185,7 +197,7 @@ const Header = () => {
                     onClick={() => setMobileMenuOpen(false)}
                     className="px-4 py-3 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 transition-all"
                   >
-                    My Reports
+                    My reports
                   </Link>
                   {(user?.role === 'moderator' || user?.role === 'admin') && (
                     <Link 
@@ -202,7 +214,7 @@ const Header = () => {
                       onClick={() => setMobileMenuOpen(false)}
                       className="px-4 py-3 rounded-lg text-purple-300 hover:text-purple-200 hover:bg-purple-500/10 transition-all"
                     >
-                      Manage Content
+                      Manage content
                     </Link>
                   )}
                   <Link 

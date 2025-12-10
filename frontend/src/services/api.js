@@ -1,6 +1,6 @@
 /**
  * API Service
- * AnLink Anti-Phishing System
+ * AnLink Anti-phishing system
  * 
  * Handles all API communication with the backend.
  */
@@ -34,7 +34,9 @@ api.interceptors.request.use(
   }
 );
 
-// Handle response errors
+/**
+ * Response interceptor - handles errors globally
+ */
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -119,6 +121,10 @@ export const moderatorAPI = {
 // ============================================
 // ADMIN API
 // ============================================
+/**
+ * Admin API methods
+ * All methods require admin authentication
+ */
 export const adminAPI = {
   getSystemStats: () => api.get('/admin/stats'),
   getUsers: (params) => api.get('/admin/users', { params }),
@@ -130,6 +136,11 @@ export const adminAPI = {
 // ============================================
 // EDUCATION API
 // ============================================
+/**
+ * Education API methods
+ * Supports both public (viewing) and admin (management) operations
+ * createContent and updateContent support FormData for file uploads
+ */
 export const educationAPI = {
   getContent: (params) => api.get('/education', { params }),
   getContentBySlug: (slug) => api.get(`/education/${slug}`),

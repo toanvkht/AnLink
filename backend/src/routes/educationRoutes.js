@@ -1,3 +1,13 @@
+/**
+ * Education Routes
+ * 
+ * Defines all education-related API endpoints including:
+ * - Content CRUD operations (admin only)
+ * - Public content viewing
+ * - Quiz submission and attempts
+ * 
+ * @module routes/educationRoutes
+ */
 const express = require('express');
 const router = express.Router();
 const educationController = require('../controllers/educationController');

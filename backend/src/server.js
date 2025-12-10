@@ -1,15 +1,24 @@
+/**
+ * AnLink API Server
+ * 
+ * Main Express server for the AnLink Anti-Phishing Detection System.
+ * Handles authentication, URL scanning, reporting, moderation, admin functions, and education content.
+ * 
+ * @module server
+ */
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
+// Route imports
 const authRoutes = require('./routes/authRoutes');
 const scanRoutes = require('./routes/scanRoutes');
-const reportRoutes = require('./routes/reportRoutes');           // ⬅️ NEW
-const feedbackRoutes = require('./routes/feedbackRoutes');       // ⬅️ NEW
-const moderatorRoutes = require('./routes/moderatorRoutes');     // ⬅️ NEW
-const adminRoutes = require('./routes/adminRoutes');             // ⬅️ NEW
-const educationRoutes = require('./routes/educationRoutes');     // ⬅️ NEW
+const reportRoutes = require('./routes/reportRoutes');
+const feedbackRoutes = require('./routes/feedbackRoutes');
+const moderatorRoutes = require('./routes/moderatorRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const educationRoutes = require('./routes/educationRoutes');
 
 const app = express();
 

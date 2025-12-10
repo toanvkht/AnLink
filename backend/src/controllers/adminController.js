@@ -1,7 +1,21 @@
+/**
+ * Admin Controller
+ * 
+ * Handles all admin-related API endpoints including:
+ * - System statistics
+ * - User management (view, update, delete)
+ * - Activity logs
+ * 
+ * @module controllers/adminController
+ */
 const { query } = require('../config/database');
 
 /**
  * Get system statistics for admin dashboard
+ * Aggregates data from multiple tables for comprehensive overview
+ * 
+ * @route GET /api/admin/stats
+ * @returns {Object} System statistics including users, scans, reports, phishing data
  */
 exports.getSystemStats = async (req, res) => {
   try {
@@ -145,7 +159,14 @@ exports.getSystemStats = async (req, res) => {
 };
 
 /**
- * Get all users with filtering
+ * Get all users with filtering and pagination
+ * 
+ * @route GET /api/admin/users
+ * @param {string} role - Filter by role (admin, moderator, community_user)
+ * @param {string} status - Filter by status (active, suspended, pending)
+ * @param {number} limit - Number of results to return
+ * @param {number} offset - Pagination offset
+ * @returns {Object} Users array with pagination
  */
 exports.getUsers = async (req, res) => {
   try {
@@ -213,6 +234,13 @@ exports.getUsers = async (req, res) => {
 
 /**
  * Update user role or status
+ * Prevents admins from modifying their own account
+ * 
+ * @route PUT /api/admin/users/:userId
+ * @param {string} userId - User ID to update
+ * @param {string} role - New role (optional)
+ * @param {string} status - New status (optional)
+ * @returns {Object} Updated user object
  */
 exports.updateUser = async (req, res) => {
   try {
@@ -309,6 +337,11 @@ exports.updateUser = async (req, res) => {
 
 /**
  * Delete user (soft delete by setting status to suspended)
+ * Prevents admins from deleting their own account
+ * 
+ * @route DELETE /api/admin/users/:userId
+ * @param {string} userId - User ID to suspend
+ * @returns {Object} Success message with deleted user info
  */
 exports.deleteUser = async (req, res) => {
   try {
@@ -363,7 +396,14 @@ exports.deleteUser = async (req, res) => {
 };
 
 /**
- * Get activity logs
+ * Get activity logs with filtering and pagination
+ * 
+ * @route GET /api/admin/logs
+ * @param {string} user_id - Filter by user ID
+ * @param {string} action_type - Filter by action type
+ * @param {number} limit - Number of results to return
+ * @param {number} offset - Pagination offset
+ * @returns {Object} Activity logs array with pagination
  */
 exports.getActivityLogs = async (req, res) => {
   try {

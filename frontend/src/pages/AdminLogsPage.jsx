@@ -1,7 +1,18 @@
+/**
+ * AdminLogsPage Component
+ * 
+ * Admin interface for viewing system activity logs. Allows admins to:
+ * - View all user activity logs
+ * - Filter logs by user ID and action type
+ * - View detailed action information
+ * 
+ * @component
+ */
 import React, { useState, useEffect } from 'react';
 import { adminAPI } from '../services/api';
 
 const AdminLogsPage = () => {
+  // State management
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -16,10 +27,14 @@ const AdminLogsPage = () => {
     has_more: false
   });
 
+  // Fetch logs when filters or pagination changes
   useEffect(() => {
     fetchLogs();
   }, [filters, pagination.offset]);
 
+  /**
+   * Fetches activity logs from the API with current filters and pagination
+   */
   const fetchLogs = async () => {
     try {
       setLoading(true);
@@ -44,11 +59,21 @@ const AdminLogsPage = () => {
     }
   };
 
+  /**
+   * Handles filter changes and resets pagination
+   * @param {string} field - Filter field name
+   * @param {string} value - Filter value
+   */
   const handleFilterChange = (field, value) => {
     setFilters(prev => ({ ...prev, [field]: value }));
     setPagination(prev => ({ ...prev, offset: 0 }));
   };
 
+  /**
+   * Returns badge styling based on action type
+   * @param {string} actionType - Action type
+   * @returns {string} Tailwind CSS classes
+   */
   const getActionTypeBadge = (actionType) => {
     const styles = {
       login: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
@@ -62,6 +87,11 @@ const AdminLogsPage = () => {
     return styles[actionType] || 'bg-white/10 text-white border-white/20';
   };
 
+  /**
+   * Formats action details JSON for display
+   * @param {Object|string} details - Action details
+   * @returns {string} Formatted JSON string
+   */
   const formatActionDetails = (details) => {
     if (!details) return 'N/A';
     try {
@@ -79,7 +109,7 @@ const AdminLogsPage = () => {
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2 flex items-center">
             <span className="mr-3">📝</span>
-            Activity Logs
+            Activity logs
           </h1>
           <p className="text-blue-200/70">Monitor system activity and user actions</p>
         </div>
@@ -88,7 +118,7 @@ const AdminLogsPage = () => {
         <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 mb-6 border border-white/10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-blue-100 text-sm font-medium mb-2">Filter by User ID</label>
+              <label className="block text-blue-100 text-sm font-medium mb-2">Filter by user ID</label>
               <input
                 type="text"
                 value={filters.user_id}
@@ -98,7 +128,7 @@ const AdminLogsPage = () => {
               />
             </div>
             <div>
-              <label className="block text-blue-100 text-sm font-medium mb-2">Filter by Action Type</label>
+              <label className="block text-blue-100 text-sm font-medium mb-2">Filter by action type</label>
               <select
                 value={filters.action_type}
                 onChange={(e) => handleFilterChange('action_type', e.target.value)}
@@ -111,7 +141,7 @@ const AdminLogsPage = () => {
                   paddingRight: '2.5rem'
                 }}
               >
-                <option value="" className="bg-slate-800 text-white">All Actions</option>
+                <option value="" className="bg-slate-800 text-white">All actions</option>
                 <option value="login" className="bg-slate-800 text-white">Login</option>
                 <option value="logout" className="bg-slate-800 text-white">Logout</option>
                 <option value="url_scan" className="bg-slate-800 text-white">URL Scan</option>
@@ -129,7 +159,7 @@ const AdminLogsPage = () => {
                 }}
                 className="w-full px-4 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white transition-all"
               >
-                Clear Filters
+                Clear filters
               </button>
             </div>
           </div>
@@ -164,7 +194,7 @@ const AdminLogsPage = () => {
                     <th className="text-left py-4 px-6 text-blue-200/70 font-medium text-sm">Timestamp</th>
                     <th className="text-left py-4 px-6 text-blue-200/70 font-medium text-sm">User</th>
                     <th className="text-left py-4 px-6 text-blue-200/70 font-medium text-sm">Action</th>
-                    <th className="text-left py-4 px-6 text-blue-200/70 font-medium text-sm">IP Address</th>
+                    <th className="text-left py-4 px-6 text-blue-200/70 font-medium text-sm">IP address</th>
                     <th className="text-left py-4 px-6 text-blue-200/70 font-medium text-sm">Details</th>
                   </tr>
                 </thead>
@@ -192,7 +222,7 @@ const AdminLogsPage = () => {
                       </td>
                       <td className="py-4 px-6">
                         <details className="cursor-pointer">
-                          <summary className="text-cyan-400 hover:text-cyan-300 text-sm">View Details</summary>
+                          <summary className="text-cyan-400 hover:text-cyan-300 text-sm">View details</summary>
                           <pre className="mt-2 p-3 bg-slate-900 rounded-lg text-xs text-blue-200 overflow-x-auto max-w-md">
                             {formatActionDetails(log.action_details)}
                           </pre>

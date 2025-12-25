@@ -409,6 +409,16 @@ exports.getActivityLogs = async (req, res) => {
   try {
     const { user_id, action_type, limit = 100, offset = 0 } = req.query;
 
+    // Validate UUID format if user_id is provided
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (user_id && !uuidRegex.test(user_id)) {
+      return res.status(400).json({
+        service: 'AnLink API',
+        success: false,
+        error: 'Invalid user_id format. Must be a valid UUID.'
+      });
+    }
+
     let queryText = `
       SELECT 
         l.log_id,

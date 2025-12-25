@@ -385,10 +385,38 @@ exports.changePassword = async (req, res) => {
   }
 };
 
+// Logout (with activity logging)
+exports.logout = async (req, res) => {
+  try {
+    const userId = req.user.userId; // From authMiddleware
+
+    // Log logout activity
+    await query(`
+      INSERT INTO user_activity_logs (user_id, action_type, action_details)
+      VALUES ($1, 'logout', $2)
+    `, [userId, JSON.stringify({ timestamp: new Date().toISOString() })]);
+
+    res.json({
+      service: 'AnLink API',
+      success: true,
+      message: 'Logout successful'
+    });
+
+  } catch (error) {
+    console.error('❌ Error logging logout:', error);
+    res.status(500).json({
+      service: 'AnLink API',
+      success: false,
+      error: 'Server error during logout'
+    });
+  }
+};
+
 // Ensure all exports are defined
 module.exports = {
   register: exports.register,
   login: exports.login,
+  logout: exports.logout,
   getProfile: exports.getProfile,
   updateProfile: exports.updateProfile,
   changePassword: exports.changePassword

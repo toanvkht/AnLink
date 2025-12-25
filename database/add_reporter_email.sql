@@ -2,7 +2,7 @@
 -- This allows anonymous reporters to optionally provide an email for follow-up
 
 -- Add reporter_email column if it doesn't exist
-DO $$ 
+DO $$
 BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM information_schema.columns 

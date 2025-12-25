@@ -13,6 +13,7 @@ const EducationDetailPage = () => {
 
   useEffect(() => {
     fetchContent();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
   const fetchContent = async () => {
@@ -75,6 +76,42 @@ const EducationDetailPage = () => {
       case 'advanced': return 'bg-red-500/20 text-red-400';
       default: return 'bg-gray-500/20 text-gray-400';
     }
+  };
+
+  /**
+   * Converts YouTube URL to embed format
+   * Supports various YouTube URL formats
+   */
+  const getEmbedUrl = (url) => {
+    if (!url) return url;
+    
+    // If already an embed URL, return as is
+    if (url.includes('/embed/')) return url;
+    
+    // Extract video ID from various YouTube URL formats
+    let videoId = null;
+    
+    // Format: https://www.youtube.com/watch?v=VIDEO_ID
+    if (url.includes('youtube.com/watch')) {
+      const urlParams = new URLSearchParams(url.split('?')[1]);
+      videoId = urlParams.get('v');
+    }
+    // Format: https://youtu.be/VIDEO_ID
+    else if (url.includes('youtu.be/')) {
+      videoId = url.split('youtu.be/')[1].split('?')[0];
+    }
+    // Format: https://www.youtube.com/v/VIDEO_ID
+    else if (url.includes('youtube.com/v/')) {
+      videoId = url.split('youtube.com/v/')[1].split('?')[0];
+    }
+    
+    // If we found a video ID, return embed URL
+    if (videoId) {
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+    
+    // Return original URL if not a YouTube link (could be uploaded video)
+    return url;
   };
 
   if (loading) {
@@ -155,14 +192,34 @@ const EducationDetailPage = () => {
         {content.media_url && (
           <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 mb-8 border border-white/10">
             {content.content_type === 'video' ? (
-              <div className="aspect-video rounded-xl overflow-hidden">
-                <iframe
-                  src={content.media_url}
-                  className="w-full h-full"
-                  allowFullScreen
-                  title={content.title}
-                />
-              </div>
+              <>
+                <div className="aspect-video rounded-xl overflow-hidden mb-4">
+                  <iframe
+                    src={getEmbedUrl(content.media_url)}
+                    className="w-full h-full"
+                    allowFullScreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    title={content.title}
+                  />
+                </div>
+                {/* Fallback link for YouTube videos */}
+                {(content.media_url.includes('youtube.com') || content.media_url.includes('youtu.be')) && (
+                  <div className="text-center">
+                    <p className="text-blue-200/60 text-sm mb-2">Video not loading?</p>
+                    <a
+                      href={content.media_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-sm transition-all border border-red-500/30"
+                    >
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                      </svg>
+                      Watch on YouTube
+                    </a>
+                  </div>
+                )}
+              </>
             ) : (
               <img
                 src={content.media_url}
@@ -173,12 +230,38 @@ const EducationDetailPage = () => {
           </div>
         )}
 
+        {/* Learning Objectives - Introduction */}
+        <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 backdrop-blur-lg rounded-2xl p-6 mb-6 border border-cyan-500/20">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl mt-1">💡</span>
+            <div className="flex-1">
+              <h3 className="text-lg font-bold text-white mb-2">What you'll learn</h3>
+              <p className="text-blue-200/80 text-base leading-relaxed">
+                This {content.content_type === 'article' ? 'article' : content.content_type === 'video' ? 'video tutorial' : 'guide'} will help you understand essential online safety concepts and practical techniques to protect yourself from phishing attacks and online scams. You'll gain actionable knowledge that you can apply immediately to stay safe online.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Content Body */}
         <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 mb-8 border border-white/10">
           <div 
             className="education-content max-w-none"
             dangerouslySetInnerHTML={{ __html: content.content_body || 'Content is being updated...' }}
           />
+          
+          {/* Key Takeaways Footer */}
+          <div className="mt-8 pt-6 border-t border-white/10">
+            <div className="flex items-start gap-3 bg-emerald-500/10 rounded-xl p-4 border border-emerald-500/20">
+              <span className="text-2xl">✅</span>
+              <div>
+                <h4 className="text-white font-semibold mb-2">Why this matters</h4>
+                <p className="text-blue-200/70 text-sm">
+                  Understanding these concepts helps you identify threats before they cause harm. By applying what you've learned here, you can protect your personal information, financial assets, and digital identity from cybercriminals.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Download Button (if downloadable) */}

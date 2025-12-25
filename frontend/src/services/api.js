@@ -62,10 +62,7 @@ export const authAPI = {
   getProfile: () => api.get('/auth/profile'),
   updateProfile: (userData) => api.put('/auth/profile', userData),
   changePassword: (passwordData) => api.post('/auth/change-password', passwordData),
-  logout: () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-  }
+  logout: () => api.post('/auth/logout'), // Now calls backend endpoint
 };
 
 // ============================================

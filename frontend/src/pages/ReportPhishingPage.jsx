@@ -14,9 +14,11 @@ const ReportPhishingPage = () => {
     url: initialUrl,
     report_reason: initialReason,
     incident_description: '',
-    evidence_urls: [''],
     reporter_email: '', // For anonymous reporters
   });
+
+  const [evidenceFiles, setEvidenceFiles] = useState([]);
+  const [filePreviewUrls, setFilePreviewUrls] = useState([]);
 
   const [preScanResult, setPreScanResult] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
@@ -58,32 +60,70 @@ const ReportPhishingPage = () => {
     if (error) setError('');
   };
 
-  const handleEvidenceChange = (index, value) => {
-    const newEvidenceUrls = [...formData.evidence_urls];
-    newEvidenceUrls[index] = value;
-    setFormData(prev => ({
-      ...prev,
-      evidence_urls: newEvidenceUrls
-    }));
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    
+    // Validate file count (max 5 files)
+    if (evidenceFiles.length + files.length > 5) {
+      setError('Maximum 5 evidence files allowed');
+      return;
+    }
+
+    // Validate file types and sizes
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/webm', 'application/pdf'];
+    const maxSize = 10 * 1024 * 1024; // 10MB
+
+    for (const file of files) {
+      if (!allowedTypes.includes(file.type)) {
+        setError('Invalid file type. Only images, videos (MP4/WebM), and PDFs are allowed.');
+        return;
+      }
+      if (file.size > maxSize) {
+        setError(`File "${file.name}" exceeds 10MB limit`);
+        return;
+      }
+    }
+
+    // Add files and create preview URLs
+    setEvidenceFiles(prev => [...prev, ...files]);
+    
+    // Generate preview URLs for images
+    const newPreviewUrls = files.map(file => {
+      if (file.type.startsWith('image/')) {
+        return URL.createObjectURL(file);
+      }
+      return null;
+    });
+    
+    setFilePreviewUrls(prev => [...prev, ...newPreviewUrls]);
+    setError('');
   };
 
-  const addEvidenceField = () => {
-    if (formData.evidence_urls.length < 5) {
-      setFormData(prev => ({
-        ...prev,
-        evidence_urls: [...prev.evidence_urls, '']
-      }));
+  const removeFile = (index) => {
+    // Revoke preview URL to avoid memory leaks
+    if (filePreviewUrls[index]) {
+      URL.revokeObjectURL(filePreviewUrls[index]);
     }
+    
+    setEvidenceFiles(prev => prev.filter((_, i) => i !== index));
+    setFilePreviewUrls(prev => prev.filter((_, i) => i !== index));
   };
 
-  const removeEvidenceField = (index) => {
-    if (formData.evidence_urls.length > 1) {
-      const newEvidenceUrls = formData.evidence_urls.filter((_, i) => i !== index);
-      setFormData(prev => ({
-        ...prev,
-        evidence_urls: newEvidenceUrls
-      }));
-    }
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const files = Array.from(e.dataTransfer.files);
+    
+    // Simulate file input event
+    const event = {
+      target: {
+        files: files
+      }
+    };
+    handleFileChange(event);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
   };
 
   const handleSubmit = async (e) => {
@@ -99,18 +139,26 @@ const ReportPhishingPage = () => {
     }
 
     try {
-      const evidenceUrls = formData.evidence_urls.filter(url => url.trim() !== '');
+      // Build FormData for file upload
+      const submitData = new FormData();
+      submitData.append('url', formData.url);
+      submitData.append('report_reason', formData.report_reason);
       
-      const reportData = {
-        url: formData.url,
-        report_reason: formData.report_reason,
-        incident_description: formData.incident_description,
-        evidence_urls: evidenceUrls.length > 0 ? evidenceUrls : undefined,
-        // Include email for anonymous reporters
-        ...((!isAuthenticated && formData.reporter_email) && { reporter_email: formData.reporter_email })
-      };
+      if (formData.incident_description) {
+        submitData.append('incident_description', formData.incident_description);
+      }
+      
+      // Add evidence files
+      evidenceFiles.forEach(file => {
+        submitData.append('evidence_files', file);
+      });
+      
+      // Include email for anonymous reporters
+      if (!isAuthenticated && formData.reporter_email) {
+        submitData.append('reporter_email', formData.reporter_email);
+      }
 
-      const response = await reportsAPI.submitReport(reportData);
+      const response = await reportsAPI.submitReport(submitData);
       
       setSuccess(response.data.message || 'Report submitted successfully! Thank you for helping keep the internet safe.');
       
@@ -127,9 +175,15 @@ const ReportPhishingPage = () => {
           url: '',
           report_reason: '',
           incident_description: '',
-          evidence_urls: [''],
           reporter_email: ''
         });
+        setEvidenceFiles([]);
+        
+        // Revoke all preview URLs
+        filePreviewUrls.forEach(url => {
+          if (url) URL.revokeObjectURL(url);
+        });
+        setFilePreviewUrls([]);
         setPreScanResult(null);
       }
     } catch (err) {
@@ -563,46 +617,92 @@ const ReportPhishingPage = () => {
             )}
           </div>
 
-          {/* Evidence URLs */}
+          {/* Evidence Files */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-8 border border-white/20">
             <h2 className="text-xl font-bold text-white mb-4 flex items-center">
               <span className="mr-2">📎</span>
-              Evidence links
-              <span className="text-blue-200/50 text-sm font-normal ml-2">(Optional)</span>
+              Evidence files
+              <span className="text-blue-200/50 text-sm font-normal ml-2">(Optional, max 5 files)</span>
             </h2>
             <p className="text-blue-200/70 text-sm mb-4">
-              Add links to screenshots, archived pages, or other evidence
+              Upload screenshots, videos, or PDFs as evidence (10MB max per file)
             </p>
 
-            {formData.evidence_urls.map((url, index) => (
-              <div key={index} className="flex gap-2 mb-3">
-                <input
-                  type="url"
-                  value={url}
-                  onChange={(e) => handleEvidenceChange(index, e.target.value)}
-                  placeholder="https://example.com/screenshot.png"
-                  className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-blue-200/50 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all"
-                />
-                {formData.evidence_urls.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeEvidenceField(index)}
-                    className="px-4 py-3 bg-red-500/20 border border-red-500/30 text-red-400 rounded-xl hover:bg-red-500/30 transition-all"
-                  >
-                    ✕
-                  </button>
-                )}
+            {/* Drag and Drop Area */}
+            <div
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              className="border-2 border-dashed border-white/30 rounded-xl p-8 text-center hover:border-cyan-400/50 transition-all bg-white/5"
+            >
+              <div className="flex flex-col items-center">
+                <span className="text-5xl mb-4">📁</span>
+                <p className="text-blue-200 mb-2">Drag & drop files here</p>
+                <p className="text-blue-200/50 text-sm mb-4">or</p>
+                <label className="px-6 py-3 bg-cyan-500/20 border border-cyan-400/50 text-cyan-400 rounded-xl hover:bg-cyan-500/30 transition-all cursor-pointer">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*,video/mp4,video/webm,application/pdf"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  Choose files
+                </label>
+                <p className="text-blue-200/40 text-xs mt-3">
+                  Images, MP4/WebM videos, or PDFs • Max 10MB each • Up to 5 files
+                </p>
               </div>
-            ))}
+            </div>
 
-            {formData.evidence_urls.length < 5 && (
-              <button
-                type="button"
-                onClick={addEvidenceField}
-                className="text-cyan-400 hover:text-cyan-300 text-sm font-medium transition-colors"
-              >
-                + Add another evidence link
-              </button>
+            {/* File Previews */}
+            {evidenceFiles.length > 0 && (
+              <div className="mt-4 space-y-3">
+                {evidenceFiles.map((file, index) => (
+                  <div key={index} className="flex items-center gap-3 bg-black/20 rounded-xl p-3 border border-white/10">
+                    {/* Preview */}
+                    <div className="flex-shrink-0">
+                      {filePreviewUrls[index] ? (
+                        <img
+                          src={filePreviewUrls[index]}
+                          alt={`Preview ${index + 1}`}
+                          className="w-16 h-16 object-cover rounded-lg"
+                        />
+                      ) : file.type.startsWith('video/') ? (
+                        <div className="w-16 h-16 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                          <span className="text-2xl">🎥</span>
+                        </div>
+                      ) : (
+                        <div className="w-16 h-16 bg-red-500/20 rounded-lg flex items-center justify-center">
+                          <span className="text-2xl">📄</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* File Info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white text-sm font-medium truncate">{file.name}</p>
+                      <p className="text-blue-200/50 text-xs">
+                        {(file.size / 1024 / 1024).toFixed(2)} MB
+                        {file.type.startsWith('image/') && ' • Image'}
+                        {file.type.startsWith('video/') && ' • Video'}
+                        {file.type === 'application/pdf' && ' • PDF'}
+                      </p>
+                    </div>
+                    
+                    {/* Remove Button */}
+                    <button
+                      type="button"
+                      onClick={() => removeFile(index)}
+                      className="px-3 py-2 bg-red-500/20 border border-red-500/30 text-red-400 rounded-lg hover:bg-red-500/30 transition-all"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+                <p className="text-blue-200/50 text-xs text-center">
+                  {evidenceFiles.length}/5 files • {(evidenceFiles.reduce((sum, f) => sum + f.size, 0) / 1024 / 1024).toFixed(2)} MB total
+                </p>
+              </div>
             )}
           </div>
 
@@ -647,7 +747,7 @@ const ReportPhishingPage = () => {
             </li>
             <li className="flex items-start">
               <span className="mr-2">•</span>
-              Include screenshots or archived links as evidence when possible
+              Upload clear screenshots or screen recordings as evidence when possible
             </li>
             <li className="flex items-start">
               <span className="mr-2">•</span>

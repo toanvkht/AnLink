@@ -99,11 +99,20 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-    window.location.href = '/login';
+  const logout = async () => {
+    try {
+      // Call backend logout endpoint to log activity
+      await authAPI.logout();
+    } catch (error) {
+      console.error('Logout API error:', error);
+      // Continue with logout even if API call fails
+    } finally {
+      // Clear local storage and redirect
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setUser(null);
+      window.location.href = '/login';
+    }
   };
 
   const updateUser = (updatedData) => {

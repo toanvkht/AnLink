@@ -2,11 +2,15 @@ const { query } = require('../config/database');
 const { parseURL, isValidURL } = require('../algorithms/urlParser');
 
 /**
- * Submit a new phishing report (supports anonymous reports)
+ * Submit a new phishing report with evidence file uploads (supports anonymous reports)
  */
 exports.submitReport = async (req, res) => {
   try {
-    const { url, report_reason, incident_description, evidence_urls, reporter_email } = req.body;
+    // Log to debug
+    console.log('📝 Report submission - req.body:', req.body);
+    console.log('📎 Files received:', req.files ? req.files.length : 0);
+    
+    const { url, report_reason, incident_description, reporter_email } = req.body;
     // User can be null for anonymous reports
     const userId = req.user?.userId || null;
     const isAnonymous = !userId;
@@ -26,6 +30,13 @@ exports.submitReport = async (req, res) => {
         success: false,
         error: 'Invalid URL format'
       });
+    }
+
+    // Process uploaded evidence files
+    let evidenceFileUrls = [];
+    if (req.files && req.files.length > 0) {
+      const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+      evidenceFileUrls = req.files.map(file => `${baseUrl}/uploads/reports/${file.filename}`);
     }
 
     // Parse URL
@@ -77,10 +88,10 @@ exports.submitReport = async (req, res) => {
       }
     }
 
-    // Insert report (reported_by can be NULL for anonymous)
+    // Insert report with evidence file URLs (reported_by can be NULL for anonymous)
     const reportResult = await query(`
       INSERT INTO reports 
-      (url_id, reported_by, report_reason, incident_description, evidence_urls, status, priority, reporter_email)
+      (url_id, reported_by, report_reason, incident_description, evidence_file_urls, status, priority, reporter_email)
       VALUES ($1, $2, $3, $4, $5, 'pending', $6, $7)
       RETURNING report_id, reported_at
     `, [
@@ -88,19 +99,24 @@ exports.submitReport = async (req, res) => {
       userId, // NULL for anonymous
       report_reason,
       incident_description || null,
-      evidence_urls ? JSON.stringify(evidence_urls) : null,
+      evidenceFileUrls.length > 0 ? JSON.stringify(evidenceFileUrls) : null,
       isAnonymous ? 'low' : 'medium', // Anonymous reports start with lower priority
       isAnonymous ? (reporter_email || null) : null // Optional email for anonymous reporters
     ]);
 
     const reportId = reportResult.rows[0].report_id;
 
-    // Log activity (only if authenticated)
+    // Log activity (for both authenticated and anonymous users)
     if (userId) {
       await query(`
         INSERT INTO user_activity_logs (user_id, action_type, action_details)
-        VALUES ($1, 'report', $2)
-      `, [userId, JSON.stringify({ report_id: reportId, url: components.original_url })]);
+        VALUES ($1, 'report_submit', $2)
+      `, [userId, JSON.stringify({ report_id: reportId, url: components.original_url, type: 'authenticated' })]);
+    } else {
+      // For anonymous reports, log with a system marker
+      console.log('📊 Anonymous report submitted:', { report_id: reportId, url: components.original_url });
+      // Note: Cannot log to user_activity_logs without user_id (FK constraint)
+      // Consider creating a separate anonymous_activity_logs table if needed
     }
 
     res.status(201).json({
@@ -114,7 +130,8 @@ exports.submitReport = async (req, res) => {
         url: components.original_url,
         status: 'pending',
         reported_at: reportResult.rows[0].reported_at,
-        anonymous: isAnonymous
+        anonymous: isAnonymous,
+        evidence_files_count: evidenceFileUrls.length
       }
     });
 
@@ -126,7 +143,7 @@ exports.submitReport = async (req, res) => {
     // Provide more detailed error message
     let errorMessage = 'Error submitting report';
     if (error.message && error.message.includes('column') && error.message.includes('does not exist')) {
-      errorMessage = 'Database schema error. Please run the migration script: database/add_reporter_email.sql';
+      errorMessage = 'Database schema error. Please run the migration script: database/add_evidence_file_uploads.sql';
     } else if (error.message) {
       errorMessage = error.message;
     }

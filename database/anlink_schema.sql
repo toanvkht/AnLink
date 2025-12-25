@@ -17,7 +17,7 @@
 -- COMMENT ON DATABASE anlink_dev IS 'AnLink Development Database - Anti-Phishing System';
 
 -- Connect to database
-\c anlink_dev
+\c anlink_dev_clone
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -339,8 +339,8 @@ CREATE TABLE IF NOT EXISTS system_settings (
     setting_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     setting_key VARCHAR(100) UNIQUE NOT NULL,
     setting_value TEXT NOT NULL,
-    value_type VARCHAR(20) NOT NULL 
-        CHECK (value_type IN ('string', 'integer', 'boolean', 'json')),
+    value_type VARCHAR(20) NOT NULL
+        CHECK (value_type IN ('string', 'integer', 'boolean', 'json', 'decimal')),
     description TEXT,
     updated_by UUID REFERENCES users(user_id),
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

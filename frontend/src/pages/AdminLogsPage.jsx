@@ -27,6 +27,38 @@ const AdminLogsPage = () => {
     has_more: false
   });
 
+  // User search state
+  const [users, setUsers] = useState([]);
+  const [userSearch, setUserSearch] = useState('');
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  // Fetch all users for search
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        // Fetch more users for search - set high limit
+        const response = await adminAPI.getUsers({ limit: 1000 });
+        console.log('👥 Fetched users:', response.data);
+        setUsers(response.data.data.users || []);
+      } catch (error) {
+        console.error('❌ Error fetching users:', error);
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showUserDropdown && !event.target.closest('.user-search-container')) {
+        setShowUserDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showUserDropdown]);
+
   // Fetch logs when filters or pagination changes
   useEffect(() => {
     fetchLogs();
@@ -70,6 +102,45 @@ const AdminLogsPage = () => {
   };
 
   /**
+   * Filter users based on search input
+   */
+  const filteredUsers = users.filter(user => {
+    if (!userSearch) return false;
+    const searchLower = userSearch.toLowerCase();
+    const emailMatch = user.email?.toLowerCase().includes(searchLower);
+    const nameMatch = user.full_name?.toLowerCase().includes(searchLower);
+    return emailMatch || nameMatch;
+  });
+
+  // Debug log
+  useEffect(() => {
+    console.log('🔍 User search:', userSearch);
+    console.log('👥 Total users:', users.length);
+    console.log('✅ Filtered users:', filteredUsers.length);
+  }, [userSearch, users]);
+
+  /**
+   * Handle user selection from dropdown
+   */
+  const handleUserSelect = (user) => {
+    setSelectedUser(user);
+    setFilters(prev => ({ ...prev, user_id: user.user_id }));
+    setUserSearch(`${user.full_name} (${user.email})`);
+    setShowUserDropdown(false);
+    setPagination(prev => ({ ...prev, offset: 0 }));
+  };
+
+  /**
+   * Clear user selection
+   */
+  const clearUserSelection = () => {
+    setSelectedUser(null);
+    setUserSearch('');
+    setFilters(prev => ({ ...prev, user_id: '' }));
+    setPagination(prev => ({ ...prev, offset: 0 }));
+  };
+
+  /**
    * Returns badge styling based on action type
    * @param {string} actionType - Action type
    * @returns {string} Tailwind CSS classes
@@ -103,8 +174,8 @@ const AdminLogsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 py-8">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 py-8 relative">
+      <div className="container mx-auto px-4 relative z-0">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2 flex items-center">
@@ -115,17 +186,76 @@ const AdminLogsPage = () => {
         </div>
 
         {/* Filters */}
-        <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 mb-6 border border-white/10">
+        <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 mb-6 border border-white/10 relative z-40">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-blue-100 text-sm font-medium mb-2">Filter by user ID</label>
-              <input
-                type="text"
-                value={filters.user_id}
-                onChange={(e) => handleFilterChange('user_id', e.target.value)}
-                placeholder="Enter user ID"
-                className="w-full px-4 py-3 bg-slate-800 border border-white/20 rounded-xl text-white focus:outline-none focus:border-cyan-400"
-              />
+            {/* User Search with Dropdown */}
+            <div className="relative user-search-container">
+              <label className="block text-blue-100 text-sm font-medium mb-2">Filter by user</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={userSearch}
+                  onChange={(e) => {
+                    setUserSearch(e.target.value);
+                    setShowUserDropdown(true);
+                    if (!e.target.value) {
+                      clearUserSelection();
+                    }
+                  }}
+                  onFocus={() => setShowUserDropdown(true)}
+                  placeholder="Search by name or email..."
+                  className="w-full px-4 py-3 bg-slate-800 border border-white/20 rounded-xl text-white placeholder-blue-200/40 focus:outline-none focus:border-cyan-400"
+                />
+                
+                {/* Clear button */}
+                {selectedUser && (
+                  <button
+                    onClick={clearUserSelection}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                  >
+                    ✕
+                  </button>
+                )}
+                
+                {/* User dropdown */}
+                {showUserDropdown && filteredUsers.length > 0 && userSearch && (
+                  <div 
+                    className="absolute w-full mt-1 bg-slate-800 border border-white/20 rounded-xl shadow-2xl max-h-64 overflow-y-auto"
+                    style={{ zIndex: 9999 }}
+                  >
+                    {filteredUsers.slice(0, 10).map(user => (
+                      <div
+                        key={user.user_id}
+                        onClick={() => handleUserSelect(user)}
+                        className="px-4 py-3 hover:bg-white/10 cursor-pointer border-b border-white/5 last:border-b-0 transition-colors"
+                      >
+                        <div className="font-medium text-white">{user.full_name}</div>
+                        <div className="text-sm text-blue-200/70">{user.email}</div>
+                        <div className="text-xs text-blue-200/40 mt-1 flex items-center gap-2">
+                          <span className={`px-2 py-0.5 rounded ${
+                            user.role === 'admin' ? 'bg-red-500/20 text-red-400' :
+                            user.role === 'moderator' ? 'bg-amber-500/20 text-amber-400' :
+                            'bg-blue-500/20 text-blue-400'
+                          }`}>
+                            {user.role}
+                          </span>
+                          <span>ID: {user.user_id.substring(0, 8)}...</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {/* No results message */}
+                {showUserDropdown && userSearch && filteredUsers.length === 0 && (
+                  <div 
+                    className="absolute w-full mt-1 bg-slate-800 border border-white/20 rounded-xl shadow-2xl p-4"
+                    style={{ zIndex: 9999 }}
+                  >
+                    <p className="text-blue-200/60 text-sm text-center">No users found</p>
+                  </div>
+                )}
+              </div>
             </div>
             <div>
               <label className="block text-blue-100 text-sm font-medium mb-2">Filter by action type</label>
@@ -156,6 +286,7 @@ const AdminLogsPage = () => {
                 onClick={() => {
                   setFilters({ user_id: '', action_type: '' });
                   setPagination(prev => ({ ...prev, offset: 0 }));
+                  clearUserSelection();
                 }}
                 className="w-full px-4 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white transition-all"
               >
@@ -176,7 +307,7 @@ const AdminLogsPage = () => {
         )}
 
         {/* Logs Table */}
-        <div className="bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 overflow-hidden">
+        <div className="bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 overflow-hidden relative z-10">
           {loading ? (
             <div className="p-12 text-center">
               <div className="w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>

@@ -1,9 +1,9 @@
 /**
  * File Upload Middleware
  * 
- * Handles file uploads for education content media files.
+ * Handles file uploads for education content and report evidence files.
  * Supports images, videos, and PDFs with a 10MB size limit.
- * Files are stored in backend/uploads/education/ with unique filenames.
+ * Files are stored in backend/uploads/education/ or backend/uploads/reports/.
  * 
  * @module middleware/uploadMiddleware
  */
@@ -11,19 +11,41 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Create uploads directory if it doesn't exist
-const uploadsDir = path.join(__dirname, '../../uploads/education');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+// Create uploads directories if they don't exist
+const educationUploadsDir = path.join(__dirname, '../../uploads/education');
+const reportsUploadsDir = path.join(__dirname, '../../uploads/reports');
+
+if (!fs.existsSync(educationUploadsDir)) {
+  fs.mkdirSync(educationUploadsDir, { recursive: true });
+}
+if (!fs.existsSync(reportsUploadsDir)) {
+  fs.mkdirSync(reportsUploadsDir, { recursive: true });
 }
 
 /**
- * Configure multer disk storage
+ * Configure multer disk storage for education content
  * Generates unique filenames to prevent conflicts
  */
-const storage = multer.diskStorage({
+const educationStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, uploadsDir);
+    cb(null, educationUploadsDir);
+  },
+  filename: (req, file, cb) => {
+    // Generate unique filename: timestamp-random-originalname
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    const name = path.basename(file.originalname, ext).replace(/[^a-z0-9]/gi, '-').toLowerCase();
+    cb(null, `${name}-${uniqueSuffix}${ext}`);
+  }
+});
+
+/**
+ * Configure multer disk storage for report evidence files
+ * Generates unique filenames to prevent conflicts
+ */
+const reportsStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, reportsUploadsDir);
   },
   filename: (req, file, cb) => {
     // Generate unique filename: timestamp-random-originalname
@@ -60,10 +82,21 @@ const fileFilter = (req, file, cb) => {
 };
 
 /**
- * Configure multer with storage, limits, and file filter
+ * Configure multer with storage, limits, and file filter for education
  */
-const upload = multer({
-  storage: storage,
+const educationUpload = multer({
+  storage: educationStorage,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit
+  },
+  fileFilter: fileFilter
+});
+
+/**
+ * Configure multer with storage, limits, and file filter for reports
+ */
+const reportsUpload = multer({
+  storage: reportsStorage,
   limits: {
     fileSize: 10 * 1024 * 1024 // 10MB limit
   },
@@ -71,6 +104,7 @@ const upload = multer({
 });
 
 module.exports = {
-  upload: upload.single('media_file'),
-  uploadMultiple: upload.array('media_files', 5) // For multiple files if needed
+  upload: educationUpload.single('media_file'),
+  uploadMultiple: educationUpload.array('media_files', 5), // For multiple files if needed
+  uploadEvidenceFiles: reportsUpload.array('evidence_files', 5) // For report evidence (up to 5 files)
 };

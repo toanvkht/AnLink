@@ -138,3 +138,24 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# === AnLink Project Specific ===
+# IDE and AI Assistant folders
+.cursor/
+.claude/
+
+# AI/MCP configuration
+.mcp.json
+
+# Development test scripts (team decision pending)
+backend/test-*.js
+backend/run-tests.js
+backend/seed-test-data.sql
+
+# Temporary Office files
+~$*.xlsx
+~$*.docx
+
+# Compressed dataset files (source CSV exists)
+database/Phishing\ URL\ dataset/*.zip
+database/Phishing\ URL\ dataset.zip
